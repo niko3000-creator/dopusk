@@ -1,0 +1,1828 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Учебный центр охраны труда — личный кабинет</title>
+<style>
+:root{
+  --blue:#2f5bf6; --blue-d:#1f47d0; --ink:#1b1f27; --muted:#8a90a0;
+  --bg:#f4f5f7; --card:#fff; --line:#e6e8ee;
+  --ok:#1faa4b; --ok-bg:#e8f7ec; --bad:#e03131; --bad-bg:#fdecec;
+  --warn:#f2b705; --warn-bg:#fff8e1; --sign-blue:#0d4ea6;
+  --r:8px; --gut:20px; --side:276px;
+}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html,body{margin:0}
+body{
+  font:16px/1.5 -apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  color:var(--ink); background:var(--bg);
+}
+h1,h2,h3{margin:0 0 12px; line-height:1.25}
+h1{font-size:28px}
+h2{font-size:22px}
+h3{font-size:17px}
+p{margin:0 0 10px}
+a{color:var(--blue)}
+
+.wrap{max-width:1440px; margin:0 auto; padding-inline:var(--gut)}
+.card{background:var(--card); border-radius:var(--r); padding:20px}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  min-height:48px; padding:0 22px; border-radius:var(--r); border:1px solid var(--blue);
+  background:transparent; color:var(--blue); font:inherit; cursor:pointer;
+  text-decoration:none;
+}
+.btn--fill{background:var(--blue); color:#fff}
+.btn:focus-visible{outline:3px solid var(--warn); outline-offset:2px}
+
+/* — шапка — */
+.top{background:var(--card)}
+.top__in{display:flex; align-items:center; gap:24px; min-height:96px}
+.logo{display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--blue-d)}
+.logo__mark{
+  display:grid; place-items:center; width:44px; height:44px; border-radius:50%;
+  border:4px solid var(--blue-d); font-weight:800; font-size:20px; color:var(--blue-d);
+}
+.logo__txt{display:grid; line-height:1.05}
+.logo__txt b{font-size:19px; letter-spacing:.02em}
+.logo__txt i{font-style:normal; font-size:11px; color:var(--muted)}
+.top__nav{display:flex; gap:30px; margin-inline:auto}
+.top__nav a{color:var(--ink); text-decoration:none}
+.top__nav a:hover{color:var(--blue)}
+
+.layout{display:grid; grid-template-columns:var(--side) minmax(0,1fr); gap:24px; padding-block:24px}
+.side{background:var(--card); border-radius:var(--r); padding:8px; align-self:start}
+#menu a{
+  display:grid; grid-template-columns:24px minmax(0,1fr); align-items:center; gap:12px;
+  min-height:48px; padding-inline:14px; border-radius:var(--r);
+  color:var(--ink); text-decoration:none;
+}
+#menu a svg{color:var(--blue)}
+#menu a:hover{background:var(--bg)}
+#menu a[aria-current="page"]{background:var(--blue); color:#fff}
+#menu a[aria-current="page"] svg{color:#fff}
+#menu a:nth-child(4){margin-bottom:14px}
+#menu a:nth-child(8){margin-bottom:14px}
+
+.foot{padding-block:28px; color:var(--muted); text-align:right}
+
+/* — фон рабочей зоны: линовка бланка протокола — */
+#screen{
+  background-image:
+    linear-gradient(to right, rgba(47,91,246,.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(47,91,246,.05) 1px, transparent 1px);
+  background-size:26px 26px;
+  padding:4px;
+}
+
+/* — профиль — */
+.sect{padding-block:14px 6px}
+.hero{display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:20px}
+.ava{
+  display:grid; place-items:center; width:96px; height:96px; border-radius:50%;
+  background:var(--bg); color:var(--muted); font-size:30px; font-weight:700;
+}
+.hero__txt h1{font-size:24px; margin-bottom:4px}
+.hero__count{margin:6px 0 0}
+.hero__count b{color:var(--blue)}
+
+.gap{
+  display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:20px;
+  margin-top:16px; background:var(--warn-bg); border-left:6px solid var(--warn);
+}
+.gap h3{margin-bottom:6px}
+.gap p{margin:0}
+
+@media (max-width:700px){
+  /* Шапка и плашка складываются в одну колонку: иначе кнопка справа
+     сжимает текст и «Соколов Артём Игоревич» ломается по словам. */
+  .hero{grid-template-columns:auto minmax(0,1fr)}
+  .hero .btn{grid-column:1 / -1; width:100%}
+  .ava{width:64px; height:64px; font-size:22px}
+  .hero__txt h1{font-size:20px}
+  .gap{grid-template-columns:minmax(0,1fr)}
+  .gap .btn{width:100%}
+}
+
+.cards{display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%,320px), 1fr)); gap:16px}
+.dop{
+  background:var(--card); border-radius:var(--r); padding:18px 18px 18px 22px;
+  border-left:6px solid var(--line); display:flex; flex-direction:column; gap:8px;
+}
+.dop[data-state="ok"]{border-left-color:var(--ok)}
+.dop[data-state="expiring"]{border-left-color:var(--warn)}
+.dop[data-state="expired"]{border-left-color:var(--bad)}
+.dop__head{display:flex; align-items:center; justify-content:space-between; gap:10px}
+.dop__code{font-size:20px; color:var(--blue)}
+.dop__st{font-size:12px; padding:4px 10px; border-radius:20px; background:var(--bg); color:var(--muted)}
+.dop[data-state="ok"] .dop__st{background:var(--ok-bg); color:var(--ok)}
+.dop[data-state="expiring"] .dop__st{background:var(--warn-bg); color:#8a6b00}
+.dop[data-state="expired"] .dop__st{background:var(--bad-bg); color:var(--bad)}
+.dop h3{font-size:16px; margin:0}
+.dop__dl{display:grid; grid-template-columns:auto minmax(0,1fr); gap:4px 12px; margin:0; font-size:14px}
+.dop__dl dt{grid-column:1; color:var(--muted)}
+.dop__dl dd{grid-column:2; margin:0}
+.dop__left{margin:0; font-size:14px; color:var(--muted)}
+.dop__none{margin:0}
+.dop .btn{margin-top:auto; align-self:flex-start}
+
+/* — курсы — */
+.crumbs{padding-block:2px 12px; color:var(--muted); font-size:14px}
+.crumbs a{text-decoration:none}
+.course{display:flex; flex-direction:column; gap:8px}
+.course .btn{margin-top:auto; align-self:flex-start}
+.bar{height:8px; border-radius:4px; background:var(--line); overflow:hidden}
+.bar i{display:block; height:100%; background:var(--blue)}
+.split{display:flex; height:14px; border-radius:4px; overflow:hidden; margin-top:14px}
+.split__online{background:var(--blue)}
+.split__onsite{background:repeating-linear-gradient(45deg,#1b1f27 0 7px,var(--warn) 7px 14px)}
+
+.tag{display:inline-block; font-size:12px; padding:3px 9px; border-radius:20px; white-space:nowrap}
+.tag--onsite{background:#1b1f27; color:var(--warn)}
+.tag--rebuild{background:var(--warn-bg); color:#8a6b00; border:1px solid var(--warn)}
+
+.hours{list-style:none; margin:0; padding:0; display:grid; gap:10px}
+.hour{
+  display:grid; grid-template-columns:minmax(0,1fr) auto auto; align-items:center; gap:16px;
+  background:var(--card); border-radius:var(--r); padding:14px 16px;
+  border-left:6px solid var(--line);
+}
+.hour--onsite{
+  border-left:10px solid transparent;
+  border-image:repeating-linear-gradient(45deg,#1b1f27 0 8px,var(--warn) 8px 16px) 10;
+}
+.hour__main{display:grid; gap:3px}
+.hour__norm{font-size:13px; color:var(--muted)}
+.hour__meta{white-space:nowrap; color:var(--muted); font-size:14px; display:grid; justify-items:end; gap:2px}
+.hour__done{color:var(--ok); font-size:12px}
+.hour__act{display:grid; justify-items:end; gap:4px}
+.hour__ses{font-size:13px; color:var(--muted); white-space:nowrap}
+@media (max-width:700px){
+  .hour{grid-template-columns:minmax(0,1fr); gap:10px}
+  .hour__meta,.hour__act{justify-items:start}
+}
+
+/* — проверка знаний — */
+.exam__top{display:flex; justify-content:flex-end}
+.link{
+  background:none; border:0; font:inherit; color:var(--muted); cursor:pointer;
+  min-height:48px; padding:0 4px; text-decoration:none;
+}
+.link:hover{color:var(--blue)}
+.grid30{display:flex; flex-wrap:wrap; gap:4px; margin-bottom:22px}
+.q{
+  width:40px; height:40px; border:1px solid var(--blue); background:var(--card);
+  color:var(--blue); font:inherit; border-radius:3px; cursor:pointer;
+}
+.q--cur{background:var(--blue); color:#fff}
+.q--right{background:var(--ok); border-color:var(--ok); color:#fff}
+.q--wrong{background:var(--bad); border-color:var(--bad); color:#fff}
+.qtext{font-size:19px; padding-bottom:14px; border-bottom:2px solid var(--blue)}
+.opts{list-style:none; margin:0 0 18px; padding:0; display:grid; gap:2px}
+.opt button{
+  display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:12px;
+  width:100%; min-height:48px; padding:10px 12px; border:0; border-radius:4px;
+  background:transparent; font:inherit; text-align:left; cursor:pointer; color:inherit;
+}
+.opt button[disabled]{cursor:default}
+.opt__box{
+  width:22px; height:22px; border:2px solid var(--muted); border-radius:4px;
+  display:grid; place-items:center;
+}
+.opt__box[data-on]{background:var(--blue); border-color:var(--blue)}
+.opt__box[data-on]::after{content:'✓'; color:#fff; font-size:14px; line-height:1}
+.opt--right{background:var(--ok-bg)}
+.opt--right .opt__box[data-on]{background:var(--ok); border-color:var(--ok)}
+.opt--wrong{background:var(--bad-bg)}
+.opt--wrong .opt__box[data-on]{background:var(--bad); border-color:var(--bad)}
+.opt--right .opt__m{color:var(--ok)}
+.opt--wrong .opt__m{color:var(--bad)}
+.qnorm{font-size:13px; color:var(--muted); padding-block:6px 16px}
+.qbtns{display:flex; gap:14px; flex-wrap:wrap}
+.qbtns .btn{min-width:150px}
+.why{
+  background:var(--bg); border-left:4px solid var(--blue); border-radius:4px;
+  padding:12px 14px; margin-bottom:14px; font-size:14px;
+}
+.resume{margin-top:16px; border-left:6px solid var(--warn); background:var(--warn-bg)}
+.resume p{margin-bottom:12px}
+
+/* — сводка центра — */
+.top__act{display:flex; gap:12px; align-items:center}
+.top__act .link{border:0; min-height:48px}
+.alert{background:var(--card); border-radius:var(--r); padding:20px; margin-bottom:16px; border-left:6px solid var(--line)}
+.alert--warn{border-left-color:var(--warn)}
+.alert--bad{border-left-color:var(--bad)}
+.alert__head{display:grid; grid-template-columns:auto minmax(0,1fr); gap:16px; align-items:center; margin-bottom:14px}
+.alert__n{font-size:34px; line-height:1; color:var(--blue)}
+.alert--bad .alert__n{color:var(--bad)}
+.alert__head h2{font-size:19px; margin:0 0 2px}
+.alert__head p{margin:0}
+.tblwrap{overflow-x:auto}
+.tbl{border-collapse:collapse; width:100%; min-width:760px; font-size:14px}
+.tbl th{text-align:left; color:var(--muted); font-weight:500; padding:8px 10px; border-bottom:1px solid var(--line)}
+.tbl td{padding:8px 10px; border-bottom:1px solid var(--line)}
+.tbl .btn{min-height:40px; padding:0 14px; font-size:14px}
+.td--warn{color:#8a6b00}
+.td--bad{color:var(--bad)}
+.roles{grid-template-columns:repeat(auto-fit, minmax(min(100%,300px), 1fr))}
+.role{
+  display:grid; gap:8px; text-align:left; border:2px solid var(--line); cursor:pointer;
+  font:inherit; color:inherit; min-height:140px; align-content:center;
+}
+.role:hover{border-color:var(--blue)}
+.role b{font-size:22px; color:var(--blue)}
+@media (max-width:900px){
+  .top__act{width:100%; justify-content:space-between}
+  .tbl .btn{min-height:48px}
+}
+
+/* — цены, анонсы, вопрос-ответ, настройки — */
+.price{font-size:20px; font-weight:700; color:var(--ink); white-space:nowrap}
+.news{margin-bottom:16px}
+.news__date{color:var(--muted); font-size:14px; margin-bottom:4px}
+.news h2{font-size:19px}
+.faq{display:grid; gap:10px}
+.faq summary{cursor:pointer; font-weight:600; min-height:32px; padding-block:8px}
+.faq p{margin:8px 0 0}
+.form{display:grid; grid-template-columns:minmax(0,260px) minmax(0,1fr); gap:12px 20px; align-items:center; margin-block:14px}
+.form label{color:var(--muted)}
+.form input{
+  min-height:48px; padding:0 14px; border:1px solid var(--line); border-radius:var(--r);
+  font:inherit; background:var(--card); color:inherit; width:100%;
+}
+.form input:focus-visible{outline:2px solid var(--blue); outline-offset:1px}
+.chk{display:flex; align-items:center; gap:10px; min-height:48px}
+.chk input{width:20px; height:20px}
+.ready{color:#14682f; background:var(--ok-bg); padding:12px 14px; border-radius:var(--r); margin:0}
+.notready{color:#8a6b00; background:var(--warn-bg); padding:12px 14px; border-radius:var(--r); margin:0}
+@media (max-width:700px){
+  .form{grid-template-columns:minmax(0,1fr); gap:6px}
+  .form label{margin-top:8px}
+}
+
+/* — видео — */
+.vlist{display:grid; gap:16px}
+.vcard{display:grid; grid-template-columns:minmax(0,320px) minmax(0,1fr); gap:20px; align-items:start}
+.vplayer__scene{width:100%; height:auto; border-radius:6px; display:block}
+.vplayer__cap{margin:8px 0 6px; font-size:14px}
+.vbar{height:6px; border-radius:3px; background:var(--line); overflow:hidden}
+.vbar i{display:block; height:100%; background:var(--blue)}
+.vmeta{display:grid; gap:8px; justify-items:start}
+.tag--done{background:var(--ok-bg); color:#14682f}
+.tag--wait{background:var(--bg); color:var(--muted)}
+@media (max-width:760px){ .vcard{grid-template-columns:minmax(0,1fr)} }
+
+/* — бланк протокола — */
+.blank{
+  background:var(--card); border-radius:var(--r); padding:28px 30px;
+  border-top:6px solid var(--blue);
+  background-image:linear-gradient(to bottom, rgba(27,31,39,.045) 1px, transparent 1px);
+  background-size:100% 30px; background-position:0 28px;
+}
+.blank__h{font-size:22px; margin-bottom:2px}
+.blank__date{color:var(--muted); margin-bottom:18px}
+.blank__h2{font-size:16px; margin:22px 0 8px}
+.blank__dl{display:grid; grid-template-columns:minmax(0,260px) minmax(0,1fr); gap:8px 20px; margin:0}
+.blank__dl dt{grid-column:1; color:var(--muted)}
+.blank__dl dd{grid-column:2; margin:0}
+.blank__tbl{border-collapse:collapse; width:100%; max-width:640px}
+.blank__tbl td{padding:7px 10px; border:1px solid var(--line)}
+.blank__srv{margin-top:22px; font-size:12px; color:var(--muted)}
+.verdict{
+  margin:20px 0; padding:14px 16px; border-radius:var(--r); font-size:18px;
+}
+.verdict b{text-transform:none}
+.verdict--ok{background:var(--ok-bg); color:#14682f}
+.verdict--bad{background:var(--bad-bg); color:#9c1c1c}
+
+@media (max-width:700px){
+  .blank{padding:20px 16px}
+  .blank__dl{grid-template-columns:minmax(0,1fr); gap:2px}
+  .blank__dl dt,.blank__dl dd{grid-column:1}
+  .blank__dl dd{margin-bottom:10px}
+}
+
+@media (max-width:900px){
+  .q{width:48px; height:48px}
+  .grid30{flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none}
+  .grid30::-webkit-scrollbar{display:none}
+  .q{flex:0 0 auto}
+  .qbtns{flex-direction:column}
+  .qbtns .btn{width:100%}
+  .qbtns [data-act="ans"]{order:-1}
+}
+
+@media (max-width:900px){
+  .layout{grid-template-columns:minmax(0,1fr)}
+  .side{position:sticky; top:0; z-index:5; padding:4px}
+  #menu{display:flex; overflow-x:auto; gap:4px; scrollbar-width:none}
+  #menu::-webkit-scrollbar{display:none}
+  /* flex:0 0 auto обязателен: без него пункты сжимаются и подписи наезжают
+     друг на друга, а перелива нет — лента скроллится, и тест ширин молчит. */
+  #menu a{white-space:nowrap; padding-inline:12px; margin-bottom:0 !important; flex:0 0 auto}
+  .top__in{flex-wrap:wrap; min-height:0; padding-block:12px; gap:12px}
+  .top__nav{order:3; width:100%; margin-inline:0; overflow-x:auto; gap:18px}
+  .top__nav a{white-space:nowrap}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap top__in">
+    <a class="logo" href="#/profile"><span class="logo__mark">Т</span>
+      <span class="logo__txt"><b>УЧЕБНЫЙ ЦЕНТР</b><i>охраны труда</i></span></a>
+    <nav class="top__nav">
+      <a href="#/faq">Телефон</a><a href="#/faq">Телеграм</a>
+      <a href="#/faq">Whats App</a><a href="#/faq">Контакты</a>
+    </nav>
+    <div class="top__act">
+      <button class="btn link" data-testid="role-switch" id="roleswitch">Сменить роль</button>
+      <button class="btn" id="feedback">Обратная связь</button>
+    </div>
+  </div>
+</header>
+<div class="wrap layout">
+  <aside class="side"><nav id="menu"></nav></aside>
+  <main id="screen" tabindex="-1"></main>
+</div>
+<footer class="foot"><div class="wrap">Все права сохранены</div></footer>
+<script>
+/* Даты — ISO. Всё производное (сроки допуска, доли очных часов, прогресс,
+   признак «пересобрать») считается в 40-model формулой из этих данных
+   и числом здесь не дублируется. */
+const REFORM_DATE = '2026-09-01'; // поправки в ПП 2464 вступают в силу
+const TODAY = '2026-08-26';
+
+/* Норматив = документ (doc) + редакция (ed). Устаревшей считается та редакция,
+   для документа которой в справочнике есть более поздняя. */
+const NORMS = {
+  pp2464:  {doc:'pp2464', ed:'2026-09-01', num:'Постановление Правительства РФ № 2464',
+            about:'Правила обучения по охране труда и проверки знания требований охраны труда'},
+  pp2464o: {doc:'pp2464', ed:'2022-09-01', num:'Постановление Правительства РФ № 2464',
+            about:'редакция до поправок 2026 года'},
+  tk214:   {doc:'tk',     ed:'2024-01-01', num:'Трудовой кодекс РФ, статья 214',
+            about:'Обязанности работодателя в области охраны труда'},
+  tk221:   {doc:'tk221',  ed:'2024-01-01', num:'Трудовой кодекс РФ, статья 221',
+            about:'Обеспечение работников средствами индивидуальной защиты'},
+  tk229:   {doc:'tk229',  ed:'2024-01-01', num:'Трудовой кодекс РФ, статья 229.1',
+            about:'Сроки расследования несчастных случаев'},
+  gost026: {doc:'gost026', ed:'2015-03-01', num:'ГОСТ 12.4.026-2015',
+            about:'Цвета сигнальные, знаки безопасности и разметка сигнальная'}
+};
+
+const PROGRAMS = [
+  {code:'46А', short:'Общие вопросы охраны труда',
+   title:'Общие вопросы охраны труда и функционирования системы управления охраной труда',
+   validMonths:36, passPercent:80, price:2900, wish:false, onsiteMin:0,
+   hours:[
+     {title:'Основные положения трудового права и требования охраны труда', min:180, mode:'online', norm:'tk214',  done:true},
+     {title:'Система управления охраной труда в организации',               min:240, mode:'online', norm:'pp2464', done:true},
+     {title:'Оценка профессиональных рисков',                               min:180, mode:'online', norm:'pp2464', done:false},
+     {title:'Расследование несчастных случаев на производстве',             min:120, mode:'online', norm:'tk229',  done:false},
+     {title:'Проверка знания требований охраны труда',                      min:240, mode:'onsite', norm:'pp2464', done:false, session:'2026-09-04'}
+   ]},
+  {code:'46Б', short:'Безопасные методы и приёмы работ',
+   title:'Безопасные методы и приёмы выполнения работ при воздействии вредных и опасных производственных факторов',
+   validMonths:36, passPercent:80, price:3400, wish:false, onsiteMin:0.5,
+   hours:[
+     {title:'Опасности и профессиональные риски на рабочем месте',   min:180, mode:'online', norm:'pp2464', done:true},
+     {title:'Средства индивидуальной защиты: подбор и применение',   min:120, mode:'online', norm:'tk221',  done:false},
+     {title:'Практическое занятие по применению СИЗ',                min:240, mode:'onsite', norm:'pp2464', done:false, session:'2026-09-08'},
+     {title:'Оказание первой помощи пострадавшим',                   min:180, mode:'onsite', norm:'pp2464', done:false, session:'2026-09-08'}
+   ]},
+  {code:'46В', short:'Работы повышенной опасности',
+   title:'Безопасные методы и приёмы выполнения работ повышенной опасности',
+   validMonths:36, passPercent:80, price:4200, wish:true, onsiteMin:0,
+   hours:[
+     {title:'Наряд-допуск: оформление, выдача и контроль',  min:180, mode:'online', norm:'pp2464o', done:false},
+     {title:'Работы на высоте',                             min:240, mode:'online', norm:'pp2464o', done:false},
+     {title:'Отработка на учебно-тренировочном полигоне',   min:300, mode:'onsite', norm:'pp2464',  done:false, session:'2026-09-15'}
+   ]},
+  /* Программа, которую центр ещё не перевёл на новые правила: очных часов 33 %
+     при обязательных 50 %. Проверка знаний по ней очная, билета в системе нет. */
+  {code:'СИЗ', short:'Использование средств индивидуальной защиты',
+   title:'Обучение по использованию (применению) средств индивидуальной защиты',
+   validMonths:36, passPercent:80, price:1900, wish:false, onsiteMin:0.5,
+   hours:[
+     {title:'Классификация СИЗ и нормы выдачи',                     min:120, mode:'online', norm:'tk221',  done:false},
+     {title:'Правила применения, хранения и ухода',                 min:120, mode:'online', norm:'pp2464', done:false},
+     {title:'Практическое занятие: надевание, подгонка, проверка',  min:120, mode:'onsite', norm:'pp2464', done:false, session:'2026-09-11'}
+   ]}
+];
+</script>
+<script>
+/* Банк вопросов. p — код программы, norm — ключ из NORMS, ref — пункт.
+   why у неверного варианта показывается в тренажёре при разборе. */
+const QUESTIONS = [
+/* ——— 46А: общие вопросы охраны труда и СУОТ ——— */
+{p:'46А', norm:'pp2464', ref:'п. 46',
+ text:'На какой срок может быть разработана временная инструкция по охране труда для вводимых в действие новых и реконструированных производств?',
+ options:[
+  {t:'Не более года, после этого инструкция должна быть пересмотрена', ok:true},
+  {t:'Не более полугода, после этого инструкция должна быть пересмотрена', ok:false, why:'Полугодовой срок правилами не установлен'},
+  {t:'На срок не более одного месяца', ok:false, why:'Месяца не хватит на приёмку производства, такой нормы нет'}]},
+
+{p:'46А', norm:'tk214', ref:'ст. 214',
+ text:'Кто обязан обеспечить безопасные условия и охрану труда на рабочем месте?',
+ options:[
+  {t:'Работодатель', ok:true},
+  {t:'Работник', ok:false, why:'Работник обязан соблюдать требования, но обеспечивает условия работодатель'},
+  {t:'Государственная инспекция труда', ok:false, why:'ГИТ надзирает за исполнением, а не обеспечивает условия'}]},
+
+{p:'46А', norm:'gost026', ref:'разд. 4',
+ text:'Какой сигнальный цвет присвоен запрещающим знакам безопасности?',
+ options:[
+  {t:'Красный', ok:true},
+  {t:'Жёлтый', ok:false, why:'Жёлтый — предупреждение об опасности'},
+  {t:'Синий', ok:false, why:'Синий — предписание, обязательное действие'}]},
+
+{p:'46А', norm:'gost026', ref:'разд. 4',
+ text:'Что означает синий сигнальный цвет знака безопасности?',
+ options:[
+  {t:'Предписание: действие обязательно для выполнения', ok:true},
+  {t:'Запрет определённого действия', ok:false, why:'Запрет обозначается красным'},
+  {t:'Указание на средство первой помощи', ok:false, why:'Средства первой помощи и эвакуация обозначаются зелёным'}]},
+
+{p:'46А', norm:'gost026', ref:'разд. 4',
+ text:'Знак «Работать в защитных перчатках» относится к группе',
+ options:[
+  {t:'Предписывающих, синий круг', ok:true},
+  {t:'Предупреждающих, жёлтый треугольник', ok:false, why:'Треугольник предупреждает об опасности, а не предписывает действие'},
+  {t:'Запрещающих, красный круг с диагональю', ok:false, why:'Запрещающий знак останавливает действие, а не требует его'}]},
+
+{p:'46А', norm:'pp2464', ref:'разд. II',
+ text:'Какой инструктаж проводится со всеми принимаемыми на работу до начала исполнения трудовых обязанностей?',
+ options:[
+  {t:'Вводный', ok:true},
+  {t:'Повторный', ok:false, why:'Повторный проводится с теми, кто уже работает'},
+  {t:'Целевой', ok:false, why:'Целевой проводится перед разовой работой, а не при приёме'}]},
+
+{p:'46А', norm:'pp2464', ref:'разд. II',
+ text:'Перед выполнением работ по наряду-допуску проводится инструктаж',
+ options:[
+  {t:'Целевой', ok:true},
+  {t:'Вводный', ok:false, why:'Вводный проводится один раз при приёме на работу'},
+  {t:'Первичный на рабочем месте', ok:false, why:'Первичный проводится до начала самостоятельной работы, а не перед каждым нарядом'}]},
+
+{p:'46А', norm:'pp2464', ref:'разд. II',
+ text:'В каком случае проводится внеплановый инструктаж по охране труда?',
+ options:[
+  {t:'При вступлении в силу новых или изменённых нормативных правовых актов по охране труда', ok:true},
+  {t:'Строго один раз в шесть месяцев', ok:false, why:'Раз в полгода проводится повторный, а не внеплановый'},
+  {t:'Только по требованию работника', ok:false, why:'Требование работника не входит в основания для внепланового инструктажа'}]},
+
+{p:'46А', norm:'pp2464', ref:'п. 59',
+ text:'С 1 сентября 2026 года обучение по программе 46В (работы повышенной опасности) проводится',
+ options:[
+  {t:'Не реже одного раза в 3 года, если отраслевые правила не требуют чаще', ok:true},
+  {t:'Ежегодно без исключений', ok:false, why:'Ежегодная периодичность действовала до поправок'},
+  {t:'Однократно, повторное обучение не требуется', ok:false, why:'Периодическая проверка знаний обязательна'}]},
+
+{p:'46А', norm:'pp2464', ref:'разд. III',
+ text:'Какова минимальная продолжительность стажировки для работника, впервые начинающего трудовую деятельность, с 1 сентября 2026 года?',
+ options:[
+  {t:'Не менее 5 смен', ok:true},
+  {t:'Не менее 2 смен', ok:false, why:'Две смены — норма до поправок'},
+  {t:'Не менее 10 смен', ok:false, why:'Такого минимума правила не устанавливают'}]},
+
+{p:'46А', norm:'pp2464', ref:'разд. III',
+ text:'В какой срок работник, впервые принятый на работу, должен пройти обучение по оказанию первой помощи?',
+ options:[
+  {t:'В течение 30 календарных дней со дня приёма на работу', ok:true},
+  {t:'В течение 12 месяцев со дня приёма на работу', ok:false, why:'Год — срок для периодического обучения, а не для первичного'},
+  {t:'Обучение первой помощи для впервые принятых не обязательно', ok:false, why:'С 1 сентября 2026 года оно обязательно'}]},
+
+{p:'46А', norm:'pp2464', ref:'разд. III',
+ text:'В какой срок проводится внеплановое обучение по применению СИЗ после актуализации программы?',
+ options:[
+  {t:'В течение 60 календарных дней', ok:true},
+  {t:'В течение 7 календарных дней', ok:false, why:'Недели на пересборку программы и сбор группы не хватает, такой нормы нет'},
+  {t:'Срок не установлен, на усмотрение работодателя', ok:false, why:'С 1 сентября 2026 года срок прямо установлен'}]},
+
+{p:'46А', norm:'pp2464', ref:'разд. III',
+ text:'Какую долю учебных часов должны занимать практические занятия при обучении применению СИЗ?',
+ options:[
+  {t:'Не менее 50 процентов общего количества учебных часов', ok:true},
+  {t:'Не менее 10 процентов', ok:false, why:'Десятой части часов недостаточно для отработки навыка'},
+  {t:'Доля не регламентирована', ok:false, why:'С 1 сентября 2026 года доля прямо установлена'}]},
+
+{p:'46А', norm:'pp2464', ref:'разд. III',
+ text:'Допускается ли проводить практические занятия по применению СИЗ дистанционно?',
+ options:[
+  {t:'Нет, только очно, с демонстрацией и тренировкой', ok:true},
+  {t:'Да, при наличии видеосвязи', ok:false, why:'Видеосвязь не заменяет тренировку с реальным СИЗ'},
+  {t:'Да, если работник сдал тест на 100 процентов', ok:false, why:'Результат теста не отменяет требование очной практики'}]},
+
+{p:'46А', norm:'pp2464', ref:'разд. III',
+ text:'Допускается ли дистанционное обучение на учебно-тренировочных полигонах и тренажёрах?',
+ options:[
+  {t:'Нет, такие занятия проводятся только очно', ok:true},
+  {t:'Да, если полигон оборудован камерами', ok:false, why:'Наблюдение через камеру не является отработкой на тренажёре'},
+  {t:'Да, для работников со стажем более 5 лет', ok:false, why:'Стаж не даёт освобождения от очных занятий'}]},
+
+{p:'46А', norm:'pp2464', ref:'разд. VI',
+ text:'В каком виде результат проверки знания требований охраны труда вносится в реестр обученных лиц?',
+ options:[
+  {t:'Словами «удовлетворительно» или «неудовлетворительно»', ok:true},
+  {t:'Процентом правильных ответов', ok:false, why:'Процент — внутренний показатель центра, в реестр он не передаётся'},
+  {t:'Оценкой по пятибалльной шкале', ok:false, why:'Пятибалльная шкала в реестре не используется'}]},
+
+{p:'46А', norm:'pp2464', ref:'разд. VI',
+ text:'Какой идентификатор работника передаётся в реестр обученных лиц по охране труда?',
+ options:[
+  {t:'СНИЛС', ok:true},
+  {t:'Номер трудовой книжки', ok:false, why:'Трудовая книжка не является идентификатором в реестре'},
+  {t:'Табельный номер в организации', ok:false, why:'Табельный номер уникален только внутри организации'}]},
+
+{p:'46А', norm:'pp2464', ref:'разд. VI',
+ text:'Что из перечисленного обязательно содержит протокол проверки знания требований охраны труда?',
+ options:[
+  {t:'Номер и дату протокола, состав комиссии и результат проверки', ok:true},
+  {t:'Только фамилию работника и слово «сдал»', ok:false, why:'Без состава комиссии и номера протокол не имеет силы'},
+  {t:'Перечень всех заданных вопросов с ответами работника', ok:false, why:'Такое требование к протоколу не предъявляется'}]},
+
+{p:'46А', norm:'pp2464', ref:'разд. VI',
+ text:'С какой периодичностью актуализируются сведения в реестре обученных лиц?',
+ options:[
+  {t:'Не реже одного раза в год', ok:true},
+  {t:'Один раз при внесении, актуализация не требуется', ok:false, why:'Сведения обязаны поддерживаться в актуальном состоянии'},
+  {t:'Ежемесячно', ok:false, why:'Ежемесячная актуализация правилами не установлена'}]},
+
+{p:'46А', norm:'pp2464', ref:'разд. II',
+ text:'Кто проводит инструктаж по охране труда руководителю организации с 1 сентября 2026 года?',
+ options:[
+  {t:'Специалист по охране труда или иной уполномоченный работник', ok:true},
+  {t:'Руководитель проводит инструктаж себе сам', ok:false, why:'Самоинструктаж правилами не предусмотрен'},
+  {t:'Представитель государственной инспекции труда', ok:false, why:'ГИТ не проводит инструктажи в организациях'}]},
+
+{p:'46А', norm:'pp2464', ref:'разд. III',
+ text:'Требуется ли обучение по охране труда внутреннему совместителю с 1 сентября 2026 года?',
+ options:[
+  {t:'Не требуется, если условия труда и профессиональные риски совпадают с основной работой', ok:true},
+  {t:'Требуется всегда и в полном объёме', ok:false, why:'Поправки прямо освобождают при совпадении условий труда'},
+  {t:'Не требуется никогда', ok:false, why:'При других условиях труда обучение обязательно'}]},
+
+{p:'46А', norm:'tk214', ref:'ст. 214',
+ text:'За чей счёт работникам выдаются средства индивидуальной защиты?',
+ options:[
+  {t:'За счёт работодателя', ok:true},
+  {t:'За счёт работника с последующей компенсацией', ok:false, why:'Перекладывать расходы на работника запрещено'},
+  {t:'За счёт Фонда социального страхования напрямую', ok:false, why:'Фонд может софинансировать, но обязанность лежит на работодателе'}]},
+
+{p:'46А', norm:'pp2464', ref:'разд. IV',
+ text:'Какова минимальная численность комиссии по проверке знания требований охраны труда?',
+ options:[
+  {t:'Не менее трёх человек, прошедших обучение и проверку знаний', ok:true},
+  {t:'Один человек — руководитель организации', ok:false, why:'Единоличная проверка знаний не допускается'},
+  {t:'Не менее десяти человек', ok:false, why:'Такого требования правила не содержат'}]},
+
+{p:'46А', norm:'tk229', ref:'ст. 229.1',
+ text:'В какой срок расследуется несчастный случай, в результате которого работник получил лёгкие повреждения здоровья?',
+ options:[
+  {t:'В течение 3 календарных дней', ok:true},
+  {t:'В течение 15 календарных дней', ok:false, why:'Пятнадцать дней — срок для тяжёлых и групповых случаев'},
+  {t:'В течение 30 календарных дней', ok:false, why:'Такой срок применяется только при продлении расследования'}]},
+
+{p:'46А', norm:'tk229', ref:'ст. 229.1',
+ text:'В какой срок расследуется групповой или тяжёлый несчастный случай?',
+ options:[
+  {t:'В течение 15 календарных дней', ok:true},
+  {t:'В течение 3 календарных дней', ok:false, why:'Три дня — срок для лёгких случаев'},
+  {t:'В течение 24 часов', ok:false, why:'За сутки проводится извещение, а не расследование'}]},
+
+{p:'46А', norm:'pp2464', ref:'разд. I',
+ text:'Что понимается под профессиональным риском?',
+ options:[
+  {t:'Вероятность причинения вреда здоровью в результате воздействия вредных и опасных производственных факторов', ok:true},
+  {t:'Вероятность увольнения работника по инициативе работодателя', ok:false, why:'Это кадровый, а не профессиональный риск'},
+  {t:'Финансовые потери организации от простоя', ok:false, why:'Профессиональный риск относится к здоровью работника'}]},
+
+{p:'46А', norm:'tk214', ref:'ст. 216.1',
+ text:'Вправе ли работник отказаться от выполнения работы при возникновении опасности для его жизни и здоровья?',
+ options:[
+  {t:'Да, до устранения опасности, с сохранением рабочего места', ok:true},
+  {t:'Нет, отказ является нарушением трудовой дисциплины', ok:false, why:'Право на отказ прямо закреплено в Трудовом кодексе'},
+  {t:'Да, но только с письменного согласия работодателя', ok:false, why:'Согласие работодателя для отказа не требуется'}]},
+
+{p:'46А', norm:'pp2464', ref:'разд. I',
+ text:'Что определяет специальная оценка условий труда?',
+ options:[
+  {t:'Наличие вредных и опасных факторов и класс условий труда на рабочем месте', ok:true},
+  {t:'Размер заработной платы работника', ok:false, why:'Оплата труда определяется трудовым договором, а не СОУТ'},
+  {t:'Квалификацию работника', ok:false, why:'Квалификацию подтверждают документы об образовании'}]},
+
+{p:'46А', norm:'pp2464', ref:'разд. III',
+ text:'Допускается ли совмещать практическую подготовку по охране труда со стажировкой на рабочем месте с 1 сентября 2026 года?',
+ options:[
+  {t:'Нет, совмещение не допускается', ok:true},
+  {t:'Да, это сокращает срок обучения', ok:false, why:'Именно такое совмещение поправки и запретили'},
+  {t:'Да, по решению специалиста по охране труда', ok:false, why:'Решение специалиста не отменяет прямой запрет'}]},
+
+{p:'46А', norm:'pp2464', ref:'разд. VI',
+ text:'Где может быть указан регистрационный номер записи о проверке знаний с 1 сентября 2026 года?',
+ options:[
+  {t:'В самом протоколе либо в выгрузке из реестра обученных лиц, приложенной к протоколу', ok:true},
+  {t:'Только в протоколе, иные варианты не допускаются', ok:false, why:'Поправки прямо разрешили приложение выгрузки'},
+  {t:'Регистрационный номер не требуется', ok:false, why:'Без номера запись невозможно сверить с реестром'}]},
+
+/* ——— 46Б: безопасные методы и приёмы работ ——— */
+{p:'46Б', norm:'tk221', ref:'ст. 221',
+ text:'Что обязан сделать работодатель, если выданное СИЗ пришло в негодность до истечения срока носки не по вине работника?',
+ options:[
+  {t:'Заменить его за свой счёт', ok:true},
+  {t:'Удержать стоимость из заработной платы', ok:false, why:'Удержание допустимо только при доказанной вине работника'},
+  {t:'Отказать в замене до конца срока носки', ok:false, why:'Работа без исправного СИЗ не допускается'}]},
+
+{p:'46Б', norm:'tk221', ref:'ст. 221',
+ text:'Вправе ли работник продолжать работу, не получив положенные ему СИЗ?',
+ options:[
+  {t:'Нет, работодатель обязан отстранить его от работы', ok:true},
+  {t:'Да, если работник письменно откажется от СИЗ', ok:false, why:'Отказ работника не снимает обязанность работодателя'},
+  {t:'Да, при выполнении работ не более одной смены', ok:false, why:'Ограничения по длительности не существует'}]},
+
+{p:'46Б', norm:'pp2464', ref:'разд. III',
+ text:'Что обязан сделать ответственный при обучении применению СИЗ с 1 сентября 2026 года?',
+ options:[
+  {t:'Продемонстрировать применение СИЗ и провести тренировку', ok:true},
+  {t:'Раздать инструкции и собрать подписи', ok:false, why:'Подпись в журнале не является практическим занятием'},
+  {t:'Показать видеозапись применения', ok:false, why:'Видео не заменяет очную тренировку'}]},
+
+{p:'46Б', norm:'pp2464', ref:'разд. I',
+ text:'К какой группе производственных факторов относится повышенный уровень шума на рабочем месте?',
+ options:[
+  {t:'К физическим', ok:true},
+  {t:'К химическим', ok:false, why:'Химические факторы — вещества и их соединения'},
+  {t:'К психофизиологическим', ok:false, why:'Психофизиологические — нагрузки и напряжённость труда'}]},
+
+{p:'46Б', norm:'pp2464', ref:'разд. I',
+ text:'К какой группе факторов относится тяжесть трудового процесса?',
+ options:[
+  {t:'К психофизиологическим', ok:true},
+  {t:'К биологическим', ok:false, why:'Биологические — микроорганизмы и продукты их жизнедеятельности'},
+  {t:'К физическим', ok:false, why:'Физические — шум, вибрация, излучения, микроклимат'}]},
+
+{p:'46Б', norm:'pp2464', ref:'разд. III',
+ text:'С какой периодичностью проводится обучение по оказанию первой помощи пострадавшим?',
+ options:[
+  {t:'Не реже одного раза в 3 года', ok:true},
+  {t:'Не реже одного раза в 10 лет', ok:false, why:'Навык первой помощи утрачивается значительно быстрее'},
+  {t:'Однократно при приёме на работу', ok:false, why:'Периодическое обучение обязательно'}]},
+
+{p:'46Б', norm:'pp2464', ref:'разд. III',
+ text:'Кто с 1 сентября 2026 года может проводить обучение по оказанию первой помощи наряду со штатными преподавателями?',
+ options:[
+  {t:'Инструкторы по оказанию первой помощи', ok:true},
+  {t:'Любой работник, прошедший вводный инструктаж', ok:false, why:'Вводного инструктажа для этого недостаточно'},
+  {t:'Только медицинские работники государственных учреждений', ok:false, why:'Такого ограничения правила не содержат'}]},
+
+{p:'46Б', norm:'gost026', ref:'разд. 4',
+ text:'Какой сигнальный цвет применяется для обозначения средств первой помощи и путей эвакуации?',
+ options:[
+  {t:'Зелёный', ok:true},
+  {t:'Красный', ok:false, why:'Красный обозначает запрет и пожарную технику'},
+  {t:'Жёлтый', ok:false, why:'Жёлтый предупреждает об опасности'}]},
+
+{p:'46Б', norm:'pp2464', ref:'разд. II',
+ text:'С какой периодичностью проводится повторный инструктаж по охране труда?',
+ options:[
+  {t:'Не реже одного раза в 6 месяцев', ok:true},
+  {t:'Не реже одного раза в 2 года', ok:false, why:'Двухлетний интервал правилами не установлен'},
+  {t:'Ежемесячно', ok:false, why:'Ежемесячная периодичность для повторного инструктажа не требуется'}]},
+
+{p:'46Б', norm:'tk214', ref:'ст. 214',
+ text:'Что работодатель обязан сделать в первую очередь при несчастном случае на производстве?',
+ options:[
+  {t:'Организовать первую помощь пострадавшему и при необходимости доставку в медорганизацию', ok:true},
+  {t:'Составить акт по форме Н-1', ok:false, why:'Акт составляется по итогам расследования, а не первым делом'},
+  {t:'Уведомить государственную инспекцию труда', ok:false, why:'Извещение обязательно, но помощь пострадавшему первична'}]},
+
+/* ——— 46В: работы повышенной опасности ——— */
+{p:'46В', norm:'pp2464o', ref:'разд. V',
+ text:'Что такое наряд-допуск?',
+ options:[
+  {t:'Задание на производство работы, оформленное на специальном бланке и определяющее содержание, место, время и условия безопасного выполнения', ok:true},
+  {t:'Пропуск на территорию предприятия', ok:false, why:'Пропуск не определяет условия безопасного выполнения работ'},
+  {t:'Документ об оплате сверхурочных работ', ok:false, why:'Наряд-допуск не связан с оплатой труда'}]},
+
+{p:'46В', norm:'pp2464o', ref:'разд. V',
+ text:'Какой инструктаж обязателен для каждого члена бригады перед началом работ по наряду-допуску?',
+ options:[
+  {t:'Целевой', ok:true},
+  {t:'Повторный', ok:false, why:'Повторный проводится по графику, а не перед конкретной работой'},
+  {t:'Вводный', ok:false, why:'Вводный проводится однократно при приёме на работу'}]},
+
+{p:'46В', norm:'pp2464o', ref:'разд. V',
+ text:'С какой высоты работа относится к работам на высоте при отсутствии защитных ограждений?',
+ options:[
+  {t:'От 1,8 метра', ok:true},
+  {t:'От 5 метров', ok:false, why:'Пять метров — граница для отдельных видов работ, а не общее определение'},
+  {t:'От 0,5 метра', ok:false, why:'Полметра не относится к работам на высоте'}]},
+
+{p:'46В', norm:'pp2464', ref:'разд. V',
+ text:'Что обязан сделать работник при обнаружении неисправности страховочной привязи перед работой на высоте?',
+ options:[
+  {t:'Не приступать к работе и сообщить непосредственному руководителю', ok:true},
+  {t:'Устранить неисправность подручными средствами', ok:false, why:'Ремонт СИЗ от падения с высоты подручными средствами запрещён'},
+  {t:'Приступить к работе, сократив её продолжительность', ok:false, why:'Неисправное СИЗ не защищает независимо от длительности работы'}]},
+
+{p:'46В', norm:'pp2464o', ref:'разд. V',
+ text:'Кто выдаёт наряд-допуск на производство работ повышенной опасности?',
+ options:[
+  {t:'Уполномоченный работодателем работник из числа руководителей и специалистов', ok:true},
+  {t:'Любой член бригады по договорённости', ok:false, why:'Выдача наряда — полномочие назначенного лица'},
+  {t:'Представитель заказчика работ', ok:false, why:'Заказчик не назначает ответственных на стороне подрядчика'}]},
+
+{p:'46В', norm:'pp2464', ref:'разд. V',
+ text:'Допускается ли отработка приёмов на учебно-тренировочном полигоне в дистанционном формате?',
+ options:[
+  {t:'Нет, только очно', ok:true},
+  {t:'Да, при трансляции с полигона', ok:false, why:'Трансляция не даёт работнику отработать приём руками'},
+  {t:'Да, если работник ранее проходил такое обучение', ok:false, why:'Прошлое обучение не заменяет текущую отработку'}]},
+
+{p:'46В', norm:'pp2464o', ref:'разд. V',
+ text:'Что делать при внезапном ухудшении погодных условий во время работ на высоте?',
+ options:[
+  {t:'Прекратить работы и вывести работников в безопасное место', ok:true},
+  {t:'Продолжить работы, усилив страховку', ok:false, why:'Усиление страховки не компенсирует шквалистый ветер и обледенение'},
+  {t:'Продолжить работы до конца смены', ok:false, why:'Смена не является основанием для риска'}]},
+
+{p:'46В', norm:'pp2464o', ref:'разд. V',
+ text:'На какой срок оформляется наряд-допуск?',
+ options:[
+  {t:'На срок, необходимый для выполнения заданного объёма работ, с возможностью продления', ok:true},
+  {t:'Строго на один календарный год', ok:false, why:'Годовой наряд-допуск не отражает конкретные условия работы'},
+  {t:'Бессрочно', ok:false, why:'Бессрочный наряд лишает документ смысла контроля'}]},
+
+{p:'46В', norm:'pp2464', ref:'разд. V',
+ text:'Кто отвечает за безопасное производство работ непосредственно на месте их выполнения?',
+ options:[
+  {t:'Ответственный руководитель и ответственный исполнитель работ, указанные в наряде-допуске', ok:true},
+  {t:'Специалист по охране труда организации', ok:false, why:'Специалист по ОТ контролирует систему, а не каждую бригаду на месте'},
+  {t:'Работник, обнаруживший нарушение', ok:false, why:'Обязанность сообщить о нарушении не делает работника ответственным за работы'}]},
+
+{p:'46В', norm:'pp2464', ref:'разд. V',
+ text:'Что необходимо сделать перед началом работ в ограниченном или замкнутом пространстве?',
+ options:[
+  {t:'Провести анализ воздушной среды и обеспечить вентиляцию', ok:true},
+  {t:'Ограничиться визуальным осмотром', ok:false, why:'Опасные газы не видны и не всегда имеют запах'},
+  {t:'Выставить наблюдающего и сразу приступить к работе', ok:false, why:'Наблюдающий обязателен, но не заменяет анализ среды'}]}
+];
+</script>
+<script>
+/* Слушатель. Пустые snils и birth — не забывчивость автора данных, а рабочий
+   случай: без них запись не уйдёт в реестр обученных лиц. */
+const STUDENT = {
+  fio:'Соколов Артём Игоревич', birth:'', snils:'', position:'Мастер участка',
+  org:'ООО «Стройпуть»',
+  records:[
+    {code:'46А', protocol:{no:'184-ОТ', date:'2023-10-12',
+      commission:[{fio:'Ковалёва Н. П.', post:'председатель комиссии'},
+                  {fio:'Юдин С. В.',     post:'член комиссии'},
+                  {fio:'Ланских О. А.',  post:'член комиссии'}],
+      regNo:'96-2023-1170455', result:'удовлетворительно'}}
+  ]
+};
+
+/* Слушатели центра. Даты протоколов подобраны так, чтобы на сводке были все
+   три состояния: истёкшие, горящие (меньше 60 дней) и свежие. */
+const CENTER = {students:[
+  {fio:'Соколов А. И.',   org:'ООО «Стройпуть»',      position:'Мастер участка',      records:[{code:'46А', date:'2023-10-12'}]},
+  {fio:'Мартынова Е. В.', org:'ООО «Стройпуть»',      position:'Специалист по ОТ',    records:[{code:'46А', date:'2023-09-04'}, {code:'46Б', date:'2024-03-15'}]},
+  {fio:'Гусев П. Н.',     org:'АО «Тепломонтаж»',     position:'Электрогазосварщик',  records:[{code:'46Б', date:'2023-08-30'}]},
+  {fio:'Ильин Р. С.',     org:'АО «Тепломонтаж»',     position:'Монтажник',           records:[{code:'46В', date:'2023-07-19'}]},
+  {fio:'Азаматов Т. Р.',  org:'ООО «Гранит»',         position:'Прораб',              records:[{code:'46А', date:'2023-06-02'}]},
+  {fio:'Волкова И. А.',   org:'ООО «Гранит»',         position:'Инженер',             records:[{code:'46А', date:'2025-02-11'}]},
+  {fio:'Дементьев К. О.', org:'ООО «Северлес»',       position:'Вальщик леса',        records:[{code:'46Б', date:'2025-05-26'}]},
+  {fio:'Панкратов С. С.', org:'ООО «Северлес»',       position:'Бригадир',            records:[{code:'46В', date:'2023-10-01'}]},
+  {fio:'Юсупова Л. М.',   org:'ООО «Аврора-Клининг»', position:'Уборщик',             records:[{code:'46А', date:'2024-11-08'}]},
+  {fio:'Егоров Д. В.',    org:'ООО «Аврора-Клининг»', position:'Начальник участка',   records:[{code:'46А', date:'2023-09-27'}]},
+  {fio:'Романец В. Г.',   org:'ИП Романец',           position:'Индивидуальный предприниматель', records:[{code:'46А', date:'2025-08-19'}]},
+  {fio:'Ким А. Ю.',       org:'АО «Тепломонтаж»',     position:'Стропальщик',         records:[{code:'46Б', date:'2023-05-14'}]}
+]};
+</script>
+<script>
+/* Видеоуроки. seconds — реальная длительность, frames — таймкоды кадров.
+   Кадры схематичные и рисуются кодом: чужих съёмок у центра нет, а имитация
+   видеозаписи читалась бы как подделка. */
+const VIDEOS = [
+  {id:'v1', code:'46А', seconds:20, norm:'pp2464', ref:'разд. VI',
+   title:'Как устроен допуск: протокол, реестр, срок действия',
+   frames:[
+     {at:0,  kind:'doc',  cap:'Проверка знаний заканчивается протоколом, а не баллом'},
+     {at:7,  kind:'reg',  cap:'Сведения уходят в реестр обученных лиц: СНИЛС, программа, результат'},
+     {at:14, kind:'time', cap:'Допуск действует три года, дальше — повторная проверка'}
+   ]},
+  {id:'v2', code:'46А', seconds:2400, norm:'pp2464', ref:'разд. III',
+   title:'Система управления охраной труда: политика, цели, процедуры',
+   frames:[
+     {at:0,    kind:'doc',  cap:'Политика и цели организации в области охраны труда'},
+     {at:800,  kind:'risk', cap:'Процедуры оценки профессиональных рисков'},
+     {at:1600, kind:'doc',  cap:'Планирование мероприятий и распределение обязанностей'}
+   ]},
+  {id:'v3', code:'46А', seconds:1800, norm:'pp2464', ref:'разд. I',
+   title:'Оценка профессиональных рисков на рабочем месте',
+   frames:[
+     {at:0,   kind:'risk', cap:'Выявление опасностей на рабочем месте'},
+     {at:600, kind:'risk', cap:'Оценка уровня риска и приоритет мер'},
+     {at:1200,kind:'sign', cap:'Меры управления: от устранения опасности до СИЗ'}
+   ]},
+  {id:'v4', code:'46Б', seconds:2100, norm:'tk221', ref:'ст. 221',
+   title:'Средства индивидуальной защиты: подбор, выдача, уход',
+   frames:[
+     {at:0,   kind:'sign', cap:'Нормы выдачи и подбор по размеру'},
+     {at:700, kind:'sign', cap:'Проверка исправности перед каждой сменой'},
+     {at:1400,kind:'doc',  cap:'Учёт выдачи и списание по срокам носки'}
+   ]},
+  {id:'v5', code:'46В', seconds:2700, norm:'pp2464o', ref:'разд. V',
+   title:'Наряд-допуск: оформление, выдача, закрытие',
+   frames:[
+     {at:0,   kind:'doc',  cap:'Кто выдаёт наряд-допуск и что в нём указывается'},
+     {at:900, kind:'risk', cap:'Целевой инструктаж бригады перед началом работ'},
+     {at:1800,kind:'time', cap:'Продление и закрытие наряда-допуска'}
+   ]}
+];
+
+const MATERIALS = [
+  {id:'m1', code:'46А', kind:'pdf', title:'Программа обучения 46А, учебно-тематический план',
+   norm:'pp2464', ref:'разд. III', updated:'2026-08-18', pages:14},
+  {id:'m2', code:'46А', kind:'doc', title:'Образец протокола проверки знания требований охраны труда',
+   norm:'pp2464', ref:'разд. VI', updated:'2026-08-18', pages:2},
+  {id:'m3', code:'46А', kind:'pdf', title:'Памятка: какие сведения передаются в реестр обученных лиц',
+   norm:'pp2464', ref:'разд. VI', updated:'2026-08-20', pages:3},
+  {id:'m4', code:'46Б', kind:'pdf', title:'Нормы выдачи средств индивидуальной защиты',
+   norm:'tk221', ref:'ст. 221', updated:'2026-07-30', pages:22},
+  {id:'m5', code:'46Б', kind:'doc', title:'Журнал учёта практических занятий по применению СИЗ',
+   norm:'pp2464', ref:'разд. III', updated:'2026-08-21', pages:1},
+  {id:'m6', code:'46В', kind:'pdf', title:'Бланк наряда-допуска на работы повышенной опасности',
+   norm:'pp2464o', ref:'разд. V', updated:'2025-11-12', pages:4}
+];
+</script>
+<script>
+const DAY = 86400000;
+function toDate(s){ return new Date(s + 'T00:00:00Z'); }
+
+/* Срок допуска = дата протокола + validMonths программы. */
+function validUntil(rec){
+  const p = PROGRAMS.find(x => x.code === rec.code);
+  const d = toDate(rec.protocol.date);
+  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + p.validMonths, d.getUTCDate()));
+}
+function daysLeft(rec, today){
+  return Math.round((validUntil(rec) - today) / DAY);
+}
+/* «Горит» — меньше 60 дней до конца допуска, включая уже истёкшие. */
+function isExpiring(rec, today){
+  return daysLeft(rec, today) < 60;
+}
+function isExpired(rec, today){
+  return daysLeft(rec, today) < 0;
+}
+
+function onsiteShare(program){
+  const total = program.hours.reduce((s, h) => s + h.min, 0);
+  const onsite = program.hours.filter(h => h.mode === 'onsite').reduce((s, h) => s + h.min, 0);
+  return total ? onsite / total : 0;
+}
+
+/* Норматив устарел, если в справочнике есть более поздняя редакция того же
+   документа. Сравнение с датой реформы тут не годится: ТК РФ в редакции
+   2024 года — действующий норматив, а не повод пересобирать программу. */
+function needsRebuild(item){
+  const n = NORMS[item.norm];
+  if (!n) return false;
+  return Object.keys(NORMS).some(k => NORMS[k].doc === n.doc && NORMS[k].ed > n.ed);
+}
+function programRebuild(program){
+  return program.hours.filter(needsRebuild);
+}
+
+function programProgress(program){
+  const totalMin = program.hours.reduce((s, h) => s + h.min, 0);
+  const doneMin = program.hours.filter(h => h.done).reduce((s, h) => s + h.min, 0);
+  return {doneMin, totalMin, pct: totalMin ? Math.round(doneMin / totalMin * 100) : 0};
+}
+
+function registryReady(student){
+  const need = {snils:'СНИЛС', birth:'дата рождения', position:'должность'};
+  const missing = Object.keys(need).filter(k => !student[k]).map(k => need[k]);
+  return {ready: missing.length === 0, missing};
+}
+
+/* — форматы — */
+function fmtDate(iso){
+  if (!iso) return '';
+  const d = String(iso).slice(0, 10).split('-');
+  return d[2] + '.' + d[1] + '.' + d[0];
+}
+function fmtMoney(n){
+  return new Intl.NumberFormat('ru-RU').format(n) + ' ₽';
+}
+function fmtHours(min){
+  const h = Math.floor(min / 60), m = min % 60;
+  return m ? h + ' ч ' + m + ' мин' : h + ' ч';
+}
+function plural(n, one, few, many){
+  const a = Math.abs(n) % 100, b = a % 10;
+  if (a > 10 && a < 20) return many;
+  if (b > 1 && b < 5) return few;
+  if (b === 1) return one;
+  return many;
+}
+function norm(item){
+  const n = NORMS[item.norm];
+  return n ? n.num + (item.ref ? ', ' + item.ref : '') + ', ред. от ' + fmtDate(n.ed) : '';
+}
+</script>
+<script>
+/* Иконки — знаки безопасности по ГОСТ 12.4.026: круг предписания,
+   треугольник предупреждения, круг запрета. Рисуются кодом, не картинками. */
+const ICONS = {
+  user:'<circle cx="10" cy="10" r="9" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="10" cy="7.6" r="2.6" fill="currentColor"/><path d="M4.8 16.4a5.6 5.6 0 0 1 10.4 0" fill="none" stroke="currentColor" stroke-width="2"/>',
+  cap:'<path d="M10 3 19 7.5 10 12 1 7.5 10 3Z" fill="currentColor"/><path d="M5 9.6v4.1c0 1.6 2.2 2.8 5 2.8s5-1.2 5-2.8V9.6" fill="none" stroke="currentColor" stroke-width="2"/>',
+  book:'<path d="M3 3.5h5.2c1 0 1.8.8 1.8 1.8V17c0-1-.8-1.8-1.8-1.8H3V3.5Z" fill="currentColor"/><path d="M17 3.5h-5.2c-1 0-1.8.8-1.8 1.8V17c0-1 .8-1.8 1.8-1.8H17V3.5Z" fill="none" stroke="currentColor" stroke-width="2"/>',
+  exam:'<path d="M10 2 19 17.5H1L10 2Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M10 8v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="10" cy="14.6" r="1.1" fill="currentColor"/>',
+  video:'<rect x="1.5" y="4.5" width="12" height="11" rx="2" fill="currentColor"/><path d="M15 9.5 19 7v6l-4-2.5v-1Z" fill="currentColor"/>',
+  box:'<path d="M10 2.2 18 6v8l-8 3.8L2 14V6l8-3.8Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M2 6l8 3.8L18 6M10 9.8v8" fill="none" stroke="currentColor" stroke-width="2"/>',
+  coin:'<ellipse cx="10" cy="6.2" rx="8" ry="3.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2 6.2v7.6c0 1.8 3.6 3.2 8 3.2s8-1.4 8-3.2V6.2" fill="none" stroke="currentColor" stroke-width="2"/>',
+  star:'<path d="m10 1.8 2.5 5.1 5.6.8-4 3.9 1 5.6-5.1-2.7-5 2.7 1-5.6-4.1-3.9 5.6-.8L10 1.8Z" fill="currentColor"/>',
+  bell:'<path d="M10 2a5 5 0 0 0-5 5v3.4L3.5 14h13L15 10.4V7a5 5 0 0 0-5-5Z" fill="currentColor"/><path d="M8 16a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="2"/>',
+  help:'<circle cx="10" cy="10" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7.6 7.6a2.5 2.5 0 1 1 3.3 2.4c-.6.2-.9.7-.9 1.3v.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="10" cy="14.6" r="1.1" fill="currentColor"/>',
+  gear:'<circle cx="10" cy="10" r="7" fill="none" stroke="currentColor" stroke-width="4" stroke-dasharray="2.2 1.6"/><circle cx="10" cy="10" r="4.4" fill="none" stroke="currentColor" stroke-width="2"/>',
+  exit:'<path d="M12 3H4v14h8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M14 6.5 17.5 10 14 13.5M17 10H8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
+};
+function icon(name){
+  return '<svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true">' + (ICONS[name] || '') + '</svg>';
+}
+
+const MENU = [
+  {hash:'#/profile',   label:'Мой профиль',       icon:'user'},
+  {hash:'#/courses',   label:'Мои курсы',         icon:'cap',   also:'#/course/'},
+  {hash:'#/mock',      label:'Пробные тесты',     icon:'book'},
+  {hash:'#/exam',      label:'Сдать экзамен',     icon:'exam',  also:'#/result'},
+  {hash:'#/video',     label:'Видео курсы',       icon:'video'},
+  {hash:'#/materials', label:'Учебные материалы', icon:'box'},
+  {hash:'#/prices',    label:'Цены на Курсы',     icon:'coin'},
+  {hash:'#/wishlist',  label:'Список желаний',    icon:'star'},
+  {hash:'#/news',      label:'Анонсы',            icon:'bell'},
+  {hash:'#/faq',       label:'Вопрос-Ответ',      icon:'help'},
+  {hash:'#/settings',  label:'Настройки',         icon:'gear'},
+  {hash:'#/exit',      label:'Выйти',             icon:'exit'}
+];
+
+const CENTER_MENU = [
+  {hash:'#/center', label:'Сводка центра', icon:'exam'},
+  {hash:'#/role',   label:'Сменить роль',  icon:'exit'}
+];
+
+const state = {role:'student'};
+try{ state.role = localStorage.getItem('dopusk.role') || 'student'; }catch(e){}
+const SCREENS = {};
+
+function esc(s){
+  return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
+
+function drawMenu(){
+  const cur = location.hash || '#/profile';
+  /* Меню выбирается по экрану, а не по сохранённой роли: иначе слушатель,
+     однажды заглянувший в сводку, получал бы меню центра на своих страницах. */
+  const items = cur === '#/center' ? CENTER_MENU : MENU;
+  document.getElementById('menu').innerHTML = items.map(m => {
+    const active = cur === m.hash
+      || cur.indexOf(m.hash + '/') === 0
+      || (m.also && cur.indexOf(m.also) === 0);
+    return '<a href="' + m.hash + '"' + (active ? ' aria-current="page"' : '') + '>'
+      + icon(m.icon) + '<span>' + m.label + '</span></a>';
+  }).join('');
+}
+
+function route(){
+  const hash = location.hash || '#/profile';
+  const draw = SCREENS[hash]
+    || SCREENS[hash.replace(/\/[^/]+$/, '/:id')]
+    || SCREENS['#/profile'];
+  const el = document.getElementById('screen');
+  el.innerHTML = '';
+  draw(el, hash);
+  drawMenu();
+}
+window.addEventListener('hashchange', route);
+
+function today(){ return new Date(TODAY + 'T00:00:00Z'); }
+function initials(fio){
+  const p = fio.split(' ');
+  return (p[0][0] + (p[1] ? p[1][0] : '')).toUpperCase();
+}
+function recordOf(code){ return STUDENT.records.find(r => r.code === code); }
+
+/* Состояние допуска по программе: none — не пройдена, expired — истёк,
+   expiring — меньше 60 дней, ok — в порядке. */
+function dopuskState(code){
+  const rec = recordOf(code);
+  if (!rec || rec.protocol.result !== 'удовлетворительно') return 'none';
+  if (isExpired(rec, today())) return 'expired';
+  if (isExpiring(rec, today())) return 'expiring';
+  return 'ok';
+}
+function activeCount(){
+  return PROGRAMS.filter(p => ['ok','expiring'].indexOf(dopuskState(p.code)) >= 0).length;
+}
+
+function registryGapHtml(){
+  const rr = registryReady(STUDENT);
+  if (rr.ready) return '';
+  const list = rr.missing.join(', ');
+  return '<section class="card gap" data-testid="registry-gap">'
+    + '<div class="gap__body">'
+    + '<h3>Профиль для реестра обученных лиц</h3>'
+    + '<p>Не заполнено: <b>' + esc(list) + '</b>. Пока этих данных нет, запись о вашей '
+    + 'проверке знаний не уйдёт в реестр Минтруда — протокол останется только на бумаге, '
+    + 'и работодатель не сможет подтвердить обучение при проверке.</p>'
+    + '</div>'
+    + '<a class="btn btn--fill" href="#/settings">Заполнить</a></section>';
+}
+
+function dopuskCard(p){
+  const st = dopuskState(p.code);
+  const rec = recordOf(p.code);
+  const labels = {ok:'Допуск действует', expiring:'Допуск скоро истечёт',
+                  expired:'Допуск истёк', none:'Программа не пройдена'};
+  let body;
+  if (rec){
+    const pr = rec.protocol;
+    const left = daysLeft(rec, today());
+    body = '<dl class="dop__dl">'
+      + '<dt>Протокол</dt><dd>№ ' + esc(pr.no) + ' от ' + fmtDate(pr.date) + '</dd>'
+      + '<dt>Результат</dt><dd>' + esc(pr.result) + '</dd>'
+      + '<dt>В реестре</dt><dd>' + (pr.regNo ? esc(pr.regNo) : 'запись не создана') + '</dd>'
+      + '<dt>Действует до</dt><dd>' + fmtDate(validUntil(rec).toISOString()) + '</dd>'
+      + '</dl>'
+      + '<p class="dop__left">' + (left < 0
+          ? 'Просрочен на ' + Math.abs(left) + ' ' + plural(Math.abs(left), 'день', 'дня', 'дней')
+          : 'Осталось ' + left + ' ' + plural(left, 'день', 'дня', 'дней'))
+      + '</p>';
+  } else {
+    const ses = p.hours.filter(h => h.session).map(h => h.session).sort()[0];
+    body = '<p class="dop__none">Не пройдена.</p>'
+      + '<p class="dop__left">' + (ses
+          ? 'Ближайшее очное занятие: ' + fmtDate(ses)
+          : 'Дата занятия не назначена') + '</p>';
+  }
+  return '<article class="dop" data-testid="dopusk-' + p.code + '" data-state="' + st + '">'
+    + '<header class="dop__head"><b class="dop__code">' + p.code + '</b>'
+    + '<span class="dop__st">' + labels[st] + '</span></header>'
+    + '<h3>' + esc(p.short) + '</h3>' + body
+    + '<a class="btn" href="#/course/' + p.code + '">Открыть программу</a></article>';
+}
+
+SCREENS['#/profile'] = el => {
+  el.innerHTML =
+    '<section class="hero card">'
+    + '<div class="ava">' + initials(STUDENT.fio) + '</div>'
+    + '<div class="hero__txt"><h1>' + esc(STUDENT.fio) + '</h1>'
+    + '<p class="muted">' + esc(STUDENT.position) + ' · ' + esc(STUDENT.org) + '</p>'
+    + '<p class="hero__count">Допусков действует: <b>' + activeCount() + '</b> из ' + PROGRAMS.length + '</p>'
+    + '</div>'
+    + '<a class="btn btn--fill" href="#/prices">Записаться на обучение</a></section>'
+    + registryGapHtml()
+    + '<h2 class="sect">Ваш допуск по программам</h2>'
+    + '<div class="cards">' + PROGRAMS.map(dopuskCard).join('') + '</div>';
+};
+
+/* — курсы — */
+function codeFrom(hash){ return decodeURIComponent(String(hash).split('/').pop()); }
+
+function rebuildBadge(h){
+  return needsRebuild(h)
+    ? '<span class="tag tag--rebuild">пересобрать до ' + fmtDate(REFORM_DATE) + '</span>'
+    : '';
+}
+
+function hourRow(h){
+  const onsite = h.mode === 'onsite';
+  const act = onsite
+    ? '<span class="tag tag--onsite">только очно</span>'
+      + '<span class="hour__ses">' + (h.session ? 'Занятие ' + fmtDate(h.session) : 'Дата не назначена') + '</span>'
+    : '<button class="btn hour__go">' + (h.done ? 'Повторить' : 'Пройти') + '</button>';
+  return '<li class="hour' + (onsite ? ' hour--onsite' : '') + '" data-mode="' + h.mode + '">'
+    + '<div class="hour__main"><b>' + esc(h.title) + '</b>'
+    + '<span class="hour__norm">' + esc(norm(h)) + '</span> ' + rebuildBadge(h) + '</div>'
+    + '<div class="hour__meta">' + fmtHours(h.min)
+    + (h.done ? '<span class="hour__done">пройдено</span>' : '') + '</div>'
+    + '<div class="hour__act">' + act + '</div></li>';
+}
+
+function hoursSplit(p){
+  const share = Math.round(onsiteShare(p) * 100);
+  return '<div class="split" title="Соотношение часов">'
+    + '<span class="split__online" style="flex:' + (100 - share) + '"></span>'
+    + '<span class="split__onsite" style="flex:' + share + '"></span></div>'
+    + '<p class="small muted">Дистанционно ' + (100 - share) + ' %, очно ' + share + ' %. '
+    + 'Очные часы дистанционно не проводятся: практика по СИЗ, первая помощь, '
+    + 'тренажёры и полигоны — только в учебном центре.</p>';
+}
+
+SCREENS['#/courses'] = el => {
+  el.innerHTML = '<h1>Мои курсы</h1>'
+    + '<div class="cards">' + PROGRAMS.map(p => {
+      const pr = programProgress(p);
+      const reb = programRebuild(p).length;
+      return '<article class="course card" data-testid="course-' + p.code + '">'
+        + '<header class="dop__head"><b class="dop__code">' + p.code + '</b>'
+        + (reb ? '<span class="tag tag--rebuild">пересобрать: ' + reb + ' '
+            + plural(reb, 'час', 'часа', 'часов') + '</span>' : '') + '</header>'
+        + '<h3>' + esc(p.short) + '</h3>'
+        + '<div class="bar"><i style="width:' + pr.pct + '%"></i></div>'
+        + '<p class="small muted">Закрыто ' + fmtHours(pr.doneMin) + ' из ' + fmtHours(pr.totalMin)
+        + ' · ' + pr.pct + ' %</p>'
+        + '<a class="btn" href="#/course/' + p.code + '">Открыть программу</a></article>';
+    }).join('') + '</div>';
+};
+
+SCREENS['#/course/:id'] = (el, hash) => {
+  const code = codeFrom(hash);
+  const p = PROGRAMS.find(x => x.code === code) || PROGRAMS[0];
+  const pr = programProgress(p);
+  el.innerHTML =
+    '<nav class="crumbs"><a href="#/courses">Мои курсы</a> → <span>' + esc(p.short) + '</span></nav>'
+    + '<section class="card">'
+    + '<header class="dop__head"><b class="dop__code">' + p.code + '</b>'
+    + '<span class="small muted">Допуск действует ' + (p.validMonths / 12) + ' года</span></header>'
+    + '<h1>' + esc(p.title) + '</h1>'
+    + '<div class="bar"><i style="width:' + pr.pct + '%"></i></div>'
+    + '<p class="small muted">Закрыто ' + fmtHours(pr.doneMin) + ' из ' + fmtHours(pr.totalMin)
+    + ' · ' + pr.pct + ' %</p>'
+    + hoursSplit(p)
+    + '</section>'
+    + '<h2 class="sect">Учебные часы</h2>'
+    + '<ul class="hours">' + p.hours.map(hourRow).join('') + '</ul>'
+    + examLink(p);
+};
+
+/* У программы может не быть билета в системе: проверка знаний по практическим
+   программам проводится очно, комиссией, на занятии. */
+function examLink(p){
+  const has = QUESTIONS.some(q => q.p === p.code);
+  if (!has){
+    const ses = p.hours.filter(h => h.session).map(h => h.session).sort()[0];
+    return '<p class="small muted">Проверка знаний по этой программе проводится очно, '
+      + 'комиссией учебного центра, на практическом занятии'
+      + (ses ? ' — ' + fmtDate(ses) : '') + '. Билета в системе нет.</p>';
+  }
+  return '<p class="small muted">Проверка знаний по программе проводится комиссией центра. '
+    + 'Порог, установленный центром, — ' + p.passPercent + ' % правильных ответов.</p>'
+    + '<a class="btn btn--fill" href="#/exam/' + p.code + '">Перейти к проверке знаний</a>';
+};
+
+SCREENS['#/prices']  = el => { el.innerHTML = '<h1>Цены на курсы</h1>'; };
+</script>
+<script>
+/* Зачёт часа — по факту просмотра, а не по открытию страницы.
+   Порог 90 % длительности: последние секунды заставки не удерживаем. */
+const WATCH_KEY = 'dopusk.watch';
+const watch = {
+  seen:{},
+  load(){
+    try{ this.seen = JSON.parse(localStorage.getItem(WATCH_KEY)) || {}; }
+    catch(e){ this.seen = {}; }
+    return this.seen;
+  },
+  mark(id, sec){
+    this.seen[id] = Math.max(this.seen[id] || 0, Math.floor(sec));
+    try{ localStorage.setItem(WATCH_KEY, JSON.stringify(this.seen)); }catch(e){}
+  },
+  credited(id){
+    const v = VIDEOS.find(x => x.id === id);
+    return !!v && (this.seen[id] || 0) >= v.seconds * 0.9;
+  },
+  reset(){ this.seen = {}; try{ localStorage.removeItem(WATCH_KEY); }catch(e){} }
+};
+
+function mmss(sec){
+  const m = Math.floor(sec / 60), s = Math.floor(sec % 60);
+  return m + ':' + (s < 10 ? '0' : '') + s;
+}
+
+/* Кадр урока — схема, а не имитация съёмки. */
+const SCENES = {
+  doc:'<rect x="86" y="36" width="148" height="118" rx="6" fill="#fff" stroke="#2f5bf6" stroke-width="3"/>'
+     +'<path d="M104 66h112M104 84h112M104 102h84M104 120h64" stroke="#c9d3f7" stroke-width="6" stroke-linecap="round"/>',
+  reg:'<rect x="60" y="52" width="90" height="86" rx="6" fill="#fff" stroke="#2f5bf6" stroke-width="3"/>'
+     +'<path d="M76 74h58M76 92h58M76 110h38" stroke="#c9d3f7" stroke-width="6" stroke-linecap="round"/>'
+     +'<path d="M158 95h48m-12-12 12 12-12 12" fill="none" stroke="#2f5bf6" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>'
+     +'<rect x="212" y="66" width="52" height="58" rx="6" fill="#2f5bf6"/>'
+     +'<path d="M224 88h28M224 102h28" stroke="#fff" stroke-width="4" stroke-linecap="round"/>',
+  time:'<circle cx="160" cy="95" r="52" fill="none" stroke="#2f5bf6" stroke-width="4"/>'
+      +'<path d="M160 62v33l22 14" fill="none" stroke="#2f5bf6" stroke-width="4" stroke-linecap="round"/>',
+  risk:'<path d="M160 40 232 152H88L160 40Z" fill="#fff" stroke="#f2b705" stroke-width="5" stroke-linejoin="round"/>'
+      +'<path d="M160 84v30" stroke="#1b1f27" stroke-width="6" stroke-linecap="round"/>'
+      +'<circle cx="160" cy="130" r="5" fill="#1b1f27"/>',
+  sign:'<circle cx="160" cy="95" r="50" fill="#0d4ea6"/>'
+      +'<path d="M138 96l16 16 30-32" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>'
+};
+function frameAt(v, t){
+  let f = v.frames[0];
+  v.frames.forEach(x => { if (t >= x.at) f = x; });
+  return f;
+}
+function scene(v, t){
+  const f = frameAt(v, t);
+  return '<svg class="vplayer__scene" viewBox="0 0 320 190" role="img" aria-label="' + esc(f.cap) + '">'
+    + '<rect width="320" height="190" fill="#eef2fe"/>' + SCENES[f.kind] + '</svg>'
+    + '<p class="vplayer__cap">' + esc(f.cap) + '</p>';
+}
+
+const player = {timer:null, id:null, t:0};
+function stopPlayer(){
+  if (player.timer){ clearInterval(player.timer); player.timer = null; }
+}
+
+function videoCard(v, el){
+  const done = watch.credited(v.id);
+  const seen = watch.seen[v.id] || 0;
+  const active = player.id === v.id;
+  const t = active ? player.t : seen;
+  return '<article class="vcard card" data-testid="video-' + v.id + '" data-credited="' + (done ? '1' : '0') + '">'
+    + '<div class="vplayer">' + scene(v, t)
+    + '<div class="vbar"><i style="width:' + Math.min(100, t / v.seconds * 100) + '%"></i></div>'
+    + '<p class="small muted">' + mmss(t) + ' из ' + mmss(v.seconds) + '</p></div>'
+    + '<div class="vmeta"><b>' + esc(v.title) + '</b>'
+    + '<span class="hour__norm">' + esc(norm(v)) + '</span>'
+    + '<span class="tag ' + (done ? 'tag--done' : 'tag--wait') + '">'
+    + (done ? 'час засчитан' : 'час не засчитан') + '</span>'
+    + '<button class="btn' + (active ? '' : ' btn--fill') + '" data-play="' + v.id + '">'
+    + (active ? 'Пауза' : (seen ? 'Продолжить' : 'Смотреть')) + '</button></div></article>';
+}
+
+SCREENS['#/video'] = el => {
+  watch.load();
+  const draw = () => {
+    el.innerHTML = '<h1>Видео курсы</h1>'
+      + '<p class="muted">Час засчитывается по факту просмотра, а не по открытию страницы. '
+      + 'Перемотка вперёд время просмотра не увеличивает.</p>'
+      + '<div class="vlist">' + VIDEOS.map(v => videoCard(v, el)).join('') + '</div>';
+    el.querySelectorAll('[data-play]').forEach(b => b.onclick = () => {
+      const id = b.dataset.play;
+      const v = VIDEOS.find(x => x.id === id);
+      if (player.id === id && player.timer){ stopPlayer(); draw(); return; }
+      stopPlayer();
+      player.id = id;
+      player.t = watch.credited(id) ? 0 : (watch.seen[id] || 0);
+      player.timer = setInterval(() => {
+        player.t += 1;
+        watch.mark(id, player.t);
+        if (player.t >= v.seconds){ stopPlayer(); player.t = v.seconds; }
+        draw();
+      }, 1000);
+      draw();
+    });
+  };
+  draw();
+};
+
+SCREENS['#/materials'] = el => {
+  el.innerHTML = '<h1>Учебные материалы</h1>'
+    + '<p class="muted">У каждого файла указан норматив и дата актуализации. '
+    + 'Материал на устаревшей редакции помечен и пересобирается учебным центром.</p>'
+    + '<ul class="hours">' + MATERIALS.map(m =>
+      '<li class="hour" data-testid="material" data-kind="' + m.kind + '">'
+      + '<div class="hour__main"><b>' + esc(m.title) + '</b>'
+      + '<span class="hour__norm">' + esc(norm(m)) + ' · актуализирован ' + fmtDate(m.updated) + '</span> '
+      + rebuildBadge(m) + '</div>'
+      + '<div class="hour__meta">' + m.code + '<span>' + m.kind.toUpperCase() + ', '
+      + m.pages + ' ' + plural(m.pages, 'страница', 'страницы', 'страниц') + '</span></div>'
+      + '<div class="hour__act"><button class="btn">Открыть</button></div></li>').join('')
+    + '</ul>';
+};
+</script>
+<script>
+/* — цены — */
+SCREENS['#/prices'] = el => {
+  const draw = () => {
+    el.innerHTML = '<h1>Цены на курсы</h1>'
+      + '<p class="muted">В стоимость входят и дистанционные, и очные часы. '
+      + 'Очные часы нельзя заменить дистанционными — это требование правил обучения, '
+      + 'а не политика центра.</p>'
+      + '<div class="cards">' + PROGRAMS.map(p => {
+        const share = Math.round(onsiteShare(p) * 100);
+        const total = p.hours.reduce((s, h) => s + h.min, 0);
+        const onsiteMin = p.hours.filter(h => h.mode === 'onsite').reduce((s, h) => s + h.min, 0);
+        return '<article class="card course" data-testid="price-' + p.code + '">'
+          + '<header class="dop__head"><b class="dop__code">' + p.code + '</b>'
+          + '<span class="price">' + fmtMoney(p.price) + '</span></header>'
+          + '<h3>' + esc(p.short) + '</h3>'
+          + '<p class="small">' + esc(p.title) + '</p>'
+          + '<p class="small muted">' + fmtHours(total) + ', из них очно '
+          + fmtHours(onsiteMin) + ' (' + share + ' %). Допуск действует '
+          + (p.validMonths / 12) + ' года.</p>'
+          + '<button class="btn' + (p.wish ? '' : ' btn--fill') + '" data-wish="' + p.code + '">'
+          + (p.wish ? 'Убрать из желаний' : 'В список желаний') + '</button></article>';
+      }).join('') + '</div>';
+    el.querySelectorAll('[data-wish]').forEach(b => b.onclick = () => {
+      const p = PROGRAMS.find(x => x.code === b.dataset.wish);
+      p.wish = !p.wish; draw();
+    });
+  };
+  draw();
+};
+
+/* — список желаний — */
+SCREENS['#/wishlist'] = el => {
+  const draw = () => {
+    const list = PROGRAMS.filter(p => p.wish);
+    el.innerHTML = '<h1>Список желаний</h1>'
+      + (list.length ? '<div class="cards">' + list.map(p =>
+          '<article class="card course" data-testid="wish-' + p.code + '">'
+          + '<header class="dop__head"><b class="dop__code">' + p.code + '</b>'
+          + '<span class="price">' + fmtMoney(p.price) + '</span></header>'
+          + '<h3>' + esc(p.short) + '</h3>'
+          + '<p class="small muted">По правилам обучения проверка знаний по этой программе '
+          + 'проходится не реже одного раза в ' + (p.validMonths / 12) + ' года. '
+          + 'Ближайшее очное занятие: '
+          + (p.hours.filter(h => h.session).map(h => h.session).sort()[0]
+              ? fmtDate(p.hours.filter(h => h.session).map(h => h.session).sort()[0])
+              : 'дата не назначена') + '.</p>'
+          + '<div class="qbtns"><a class="btn btn--fill" href="#/course/' + p.code + '">Открыть программу</a>'
+          + '<button class="btn" data-drop="' + p.code + '">Убрать</button></div></article>').join('')
+          + '</div>'
+        : '<section class="card"><p>Список пуст. Программы добавляются со страницы '
+          + '<a href="#/prices">Цены на курсы</a>.</p></section>');
+    el.querySelectorAll('[data-drop]').forEach(b => b.onclick = () => {
+      PROGRAMS.find(x => x.code === b.dataset.drop).wish = false; draw();
+    });
+  };
+  draw();
+};
+
+/* — анонсы — */
+const NEWS = [
+  {date:'2026-08-20', title:'С 1 сентября 2026 года меняются правила обучения по охране труда',
+   body:'Программы центра пересобраны под новую редакцию Постановления № 2464. Что изменилось: '
+      + 'обучение по программе 46В переходит с ежегодного на периодичность не реже одного раза '
+      + 'в три года; стажировка для впервые начинающих трудовую деятельность — не менее пяти смен '
+      + 'вместо двух; обучение первой помощи для впервые принятых обязательно в течение 30 '
+      + 'календарных дней со дня приёма; внеплановое обучение по СИЗ и первой помощи — в течение '
+      + '60 календарных дней после актуализации программы. Практические занятия по применению СИЗ, '
+      + 'обучение первой помощи и отработка на тренажёрах дистанционно больше не проводятся.'},
+  {date:'2026-08-18', title:'Расписание очных занятий на сентябрь',
+   body:'Проверка знаний по программе 46А — 4 сентября. Практика по СИЗ и первая помощь '
+      + 'по программе 46Б — 8 сентября. Учебно-тренировочный полигон по программе 46В — 15 сентября. '
+      + 'Занятия проходят в учебном классе центра, дистанционное участие в них не засчитывается.'},
+  {date:'2026-08-11', title:'Сведения в реестре обученных лиц актуализируются раз в год',
+   body:'Проверьте, что в профиле заполнены СНИЛС, дата рождения и должность. Без них запись '
+      + 'о проверке знаний не передаётся в реестр, и подтвердить обучение при проверке нечем.'}
+];
+SCREENS['#/news'] = el => {
+  el.innerHTML = '<h1>Анонсы</h1>'
+    + NEWS.map(n => '<article class="card news">'
+        + '<p class="news__date">' + fmtDate(n.date) + '</p>'
+        + '<h2>' + esc(n.title) + '</h2><p>' + esc(n.body) + '</p></article>').join('');
+};
+
+/* — вопрос-ответ — */
+const FAQ = [
+  {q:'Чем протокол отличается от удостоверения?',
+   a:'Протокол проверки знания требований охраны труда — основной документ: он подтверждает, '
+     + 'что комиссия провела проверку и с каким результатом. Удостоверение выдаётся по желанию '
+     + 'работника и само по себе ничего не доказывает. При проверке инспектор смотрит протокол '
+     + 'и запись в реестре обученных лиц.'},
+  {q:'Зачем платформе мой СНИЛС?',
+   a:'СНИЛС — идентификатор работника в реестре обученных лиц. Без него сведения о проверке '
+     + 'знаний передать невозможно: запись просто не создастся, и обучение окажется '
+     + 'неподтверждённым, даже если экзамен сдан.'},
+  {q:'Что проверяет государственная инспекция труда?',
+   a:'Наличие протокола, состав комиссии, соответствие программы обучения занимаемой должности '
+     + 'и запись в реестре обученных лиц. Отдельно смотрят, не истёк ли срок и проведены ли '
+     + 'очные часы там, где дистанционное обучение не допускается.'},
+  {q:'Почему часть часов можно пройти только очно?',
+   a:'С 1 сентября 2026 года дистанционно запрещены практические занятия по применению СИЗ, '
+     + 'обучение оказанию первой помощи и отработка на учебно-тренировочных полигонах и '
+     + 'тренажёрах. У практики по СИЗ не менее половины учебных часов должно быть очными. '
+     + 'Платформа не даёт закрыть такой час онлайн, чтобы документ не аннулировали при проверке.'},
+  {q:'Что будет, если я не сдам проверку знаний?',
+   a:'Протокол оформляется в любом случае, с результатом «неудовлетворительно», и этот результат '
+     + 'тоже передаётся в реестр. Допуск не открывается. Дату повторной проверки назначает '
+     + 'учебный центр.'},
+  {q:'Сколько действует допуск?',
+   a:'Три года с даты протокола, если отраслевые правила не требуют чаще. За 60 дней до конца '
+     + 'срока платформа предупредит и вас, и учебный центр.'}
+];
+SCREENS['#/faq'] = el => {
+  el.innerHTML = '<h1>Вопрос-Ответ</h1>'
+    + '<div class="faq">' + FAQ.map(f =>
+        '<details class="card"><summary>' + esc(f.q) + '</summary><p>' + esc(f.a) + '</p></details>'
+      ).join('') + '</div>';
+};
+
+/* — настройки — */
+SCREENS['#/settings'] = el => {
+  const rr = registryReady(STUDENT);
+  el.innerHTML = '<h1>Настройки</h1>'
+    + '<section class="card">'
+    + '<h2>Данные для реестра обученных лиц</h2>'
+    + '<p class="small muted">Эти поля передаются в реестр вместе с результатом проверки знаний. '
+    + 'Без них запись не создаётся.</p>'
+    + '<div class="form">'
+    + '<label for="f-fio">Фамилия, имя, отчество</label>'
+    + '<input id="f-fio" value="' + esc(STUDENT.fio) + '">'
+    + '<label for="f-snils">СНИЛС</label>'
+    + '<input id="f-snils" placeholder="000-000-000 00" value="' + esc(STUDENT.snils) + '">'
+    + '<label for="f-birth">Дата рождения</label>'
+    + '<input id="f-birth" type="date" value="' + esc(STUDENT.birth) + '">'
+    + '<label for="f-position">Должность</label>'
+    + '<input id="f-position" value="' + esc(STUDENT.position) + '">'
+    + '<label for="f-org">Организация</label>'
+    + '<input id="f-org" value="' + esc(STUDENT.org) + '">'
+    + '</div>'
+    + '<p class="' + (rr.ready ? 'ready' : 'notready') + '" data-testid="registry-state">'
+    + (rr.ready
+        ? 'Данных достаточно: запись уйдёт в реестр вместе с протоколом.'
+        : 'Не заполнено: ' + esc(rr.missing.join(', ')) + '. Запись в реестр не уйдёт.')
+    + '</p></section>'
+    + '<section class="card">'
+    + '<h2>Уведомления</h2>'
+    + '<label class="chk"><input type="checkbox" id="n-expire" checked> '
+    + 'Предупреждать за 60 дней до окончания допуска</label>'
+    + '<label class="chk"><input type="checkbox" id="n-norm" checked> '
+    + 'Сообщать о новых редакциях нормативов по моим программам</label>'
+    + '</section>';
+
+  const bind = (id, key) => {
+    const inp = el.querySelector('#' + id);
+    inp.addEventListener('input', () => {
+      STUDENT[key] = inp.value;
+      const st = el.querySelector('[data-testid="registry-state"]');
+      const r = registryReady(STUDENT);
+      st.className = r.ready ? 'ready' : 'notready';
+      st.textContent = r.ready
+        ? 'Данных достаточно: запись уйдёт в реестр вместе с протоколом.'
+        : 'Не заполнено: ' + r.missing.join(', ') + '. Запись в реестр не уйдёт.';
+    });
+  };
+  bind('f-fio', 'fio'); bind('f-snils', 'snils'); bind('f-birth', 'birth');
+  bind('f-position', 'position'); bind('f-org', 'org');
+};
+</script>
+<script>
+const EXAM_KEY = 'dopusk.exam';
+
+/* Движок общий для экзамена и тренажёра. Разница одна: у тренажёра
+   mode='mock' — попытка не превращается в протокол и не идёт в реестр. */
+const exam = {
+  s:null,
+  list(){ return this.s ? QUESTIONS.filter(q => q.p === this.s.code) : []; },
+  current(){ return this.list()[this.s.idx]; },
+  start(code, mode){
+    const n = QUESTIONS.filter(q => q.p === code).length;
+    this.s = {code, mode: mode || 'exam', idx:0, pending:null,
+              answers:new Array(n).fill(null), startedAt:new Date().toISOString()};
+    this.save();
+    return this.s;
+  },
+  locked(i){ return this.s.answers[i] !== null; },
+  /* Выбор варианта. Пока не нажата «Ответить», ответ не засчитан. */
+  pick(k){ if (!this.locked(this.s.idx)) this.s.pending = k; this.save(); },
+  commit(){ if (this.s.pending !== null) this.answer(this.s.pending); },
+  answer(i){
+    if (this.s && !this.locked(this.s.idx)) this.s.answers[this.s.idx] = i;
+    this.s.pending = null;
+    this.save();
+  },
+  next(){ this.s.idx = Math.min(this.s.idx + 1, this.s.answers.length - 1); this.s.pending = null; this.save(); },
+  prev(){ this.s.idx = Math.max(this.s.idx - 1, 0); this.s.pending = null; this.save(); },
+  go(n){ this.s.idx = Math.max(0, Math.min(n, this.s.answers.length - 1)); this.s.pending = null; this.save(); },
+  answered(){ return this.s.answers.filter(a => a !== null).length; },
+  verdict(i){
+    const a = this.s.answers[i];
+    if (a === null) return null;
+    const q = this.list()[i];
+    return q.options[a] && q.options[a].ok ? 'right' : 'wrong';
+  },
+  score(){
+    const qs = this.list();
+    const right = this.s.answers.reduce((n, a, i) =>
+      n + (a !== null && qs[i].options[a] && qs[i].options[a].ok ? 1 : 0), 0);
+    const total = qs.length;
+    const pct = Math.round(right / total * 100);
+    const prog = PROGRAMS.find(p => p.code === this.s.code);
+    return {right, total, pct, passed: pct >= prog.passPercent, threshold: prog.passPercent};
+  },
+  save(){ try{ localStorage.setItem(EXAM_KEY, JSON.stringify(this.s)); }catch(e){} },
+  restore(){
+    try{
+      const raw = localStorage.getItem(EXAM_KEY);
+      if (raw) this.s = JSON.parse(raw);
+    } catch(e){ this.s = null; }
+    return this.s;
+  },
+  clear(){
+    this.s = null;
+    try{ localStorage.removeItem(EXAM_KEY); }catch(e){}
+  }
+};
+
+/* — экран проверки знаний — */
+function examGrid(){
+  return '<div class="grid30" id="grid">' + exam.s.answers.map((a, i) => {
+    const v = exam.verdict(i);
+    const cls = i === exam.s.idx ? 'cur' : (v || '');
+    return '<button class="q' + (cls ? ' q--' + cls : '') + '" data-go="' + i + '">' + (i + 1) + '</button>';
+  }).join('') + '</div>';
+}
+
+function examQuestion(){
+  const q = exam.current();
+  const i = exam.s.idx;
+  const chosen = exam.s.answers[i];
+  const done = chosen !== null;
+  const pending = exam.s.pending;
+  const opts = q.options.map((o, k) => {
+    let cls = '';
+    if (done && o.ok) cls = ' opt--right';
+    else if (done && k === chosen) cls = ' opt--wrong';
+    const mark = done && o.ok ? '<span class="opt__m">✓</span>'
+               : (done && k === chosen ? '<span class="opt__m">✕</span>' : '');
+    const on = done ? (o.ok || k === chosen) : (k === pending);
+    return '<li class="opt' + cls + '"><button data-pick="' + k + '"' + (done ? ' disabled' : '') + '>'
+      + '<span class="opt__box"' + (on ? ' data-on="1"' : '') + '></span>'
+      + '<span class="opt__t">' + esc(o.t) + '</span>' + mark + '</button></li>';
+  }).join('');
+  const why = (done && exam.s.mode === 'mock')
+    ? '<div class="why"><b>Разбор.</b> Верно: ' + esc(q.options.find(o => o.ok).t) + '. '
+      + q.options.filter(o => !o.ok && o.why).map(o => esc(o.t) + ' — ' + esc(o.why) + '.').join(' ')
+      + '</div>'
+    : '';
+  return '<h2 class="qtext">' + esc(q.text) + '</h2>'
+    + '<ul class="opts">' + opts + '</ul>'
+    + why
+    + '<p class="qnorm">' + esc(norm(q)) + '</p>'
+    + '<div class="qbtns">'
+    + '<button class="btn" data-act="prev">Вернуться</button>'
+    + '<button class="btn btn--fill" data-act="ans"'
+    + (done || pending === null ? ' disabled' : '') + '>Ответить</button>'
+    + '<button class="btn" data-act="next">Далее</button>'
+    + '</div>';
+}
+
+function drawExam(el){
+  const p = PROGRAMS.find(x => x.code === exam.s.code);
+  const finishLabel = exam.s.mode === 'mock' ? 'Завершить тренировку' : 'Завершить тестирование';
+  el.innerHTML =
+    '<nav class="crumbs"><a href="#/courses">Онлайн тесты</a> → <a href="#/mock">Тесты</a>'
+    + ' → <span>Общеобразовательные дисциплины</span> → <span>' + esc(p.short) + '</span></nav>'
+    + '<section class="card exam">'
+    + '<div class="exam__top"><button class="link" data-act="finish">' + finishLabel + '</button></div>'
+    + examGrid()
+    + examQuestion()
+    + '</section>';
+
+  el.querySelectorAll('[data-go]').forEach(b => b.onclick = () => { exam.go(+b.dataset.go); drawExam(el); });
+  el.querySelectorAll('[data-pick]').forEach(b => b.onclick = () => { exam.pick(+b.dataset.pick); drawExam(el); });
+  const act = {
+    prev(){ exam.prev(); drawExam(el); },
+    next(){ exam.next(); drawExam(el); },
+    ans(){ exam.commit(); drawExam(el); },
+    finish(){ location.hash = exam.s.mode === 'mock' ? '#/mock' : '#/result'; }
+  };
+  el.querySelectorAll('[data-act]').forEach(b => b.onclick = () => act[b.dataset.act]());
+  const cur = el.querySelector('.q--cur');
+  if (cur && cur.scrollIntoView) cur.scrollIntoView({block:'nearest', inline:'center'});
+}
+
+function examIntro(el, code, mode){
+  const p = PROGRAMS.find(x => x.code === code);
+  const saved = exam.restore();
+  const cont = (saved && saved.code === code && saved.mode === mode)
+    ? '<div class="card resume"><p><b>Незавершённая попытка</b> от '
+      + fmtDate(saved.startedAt) + ', отвечено ' + saved.answers.filter(a => a !== null).length
+      + ' из ' + saved.answers.length + '. Ответы сохранились на этом устройстве.</p>'
+      + '<div class="qbtns"><button class="btn btn--fill" data-act="resume">Продолжить</button>'
+      + '<button class="btn" data-act="fresh">Начать заново</button></div></div>'
+    : '';
+  el.innerHTML =
+    '<h1>' + (mode === 'mock' ? 'Пробный тест' : 'Проверка знания требований охраны труда') + '</h1>'
+    + '<section class="card">'
+    + '<h2>' + esc(p.title) + '</h2>'
+    + '<p>Вопросов в билете: ' + QUESTIONS.filter(q => q.p === code).length
+    + '. Порог, установленный центром: ' + p.passPercent + ' % правильных ответов.</p>'
+    + (mode === 'mock'
+        ? '<p>Тренировка не создаёт протокол и не передаётся в реестр обученных лиц. '
+          + 'После каждого ответа показывается разбор со ссылкой на норматив.</p>'
+        : '<p>По итогам формируется протокол проверки знания требований охраны труда. '
+          + 'Результат вносится в реестр обученных лиц словами «удовлетворительно» '
+          + 'или «неудовлетворительно».</p>')
+    + '<button class="btn btn--fill" data-act="begin">Начать</button>'
+    + '</section>' + cont;
+  const act = {
+    begin(){ exam.start(code, mode); drawExam(el); },
+    resume(){ exam.s = saved; drawExam(el); },
+    fresh(){ exam.clear(); exam.start(code, mode); drawExam(el); }
+  };
+  el.querySelectorAll('[data-act]').forEach(b => b.onclick = () => act[b.dataset.act]());
+}
+
+/* Программа берётся из адреса: #/exam/46Б. Без кода — первая программа,
+   у которой есть билет. */
+function examCode(hash){
+  const c = codeFrom(hash);
+  return QUESTIONS.some(q => q.p === c) ? c : PROGRAMS.find(p => QUESTIONS.some(q => q.p === p.code)).code;
+}
+SCREENS['#/exam']     = (el, hash) => examIntro(el, examCode(hash), 'exam');
+SCREENS['#/exam/:id'] = (el, hash) => examIntro(el, examCode(hash), 'exam');
+SCREENS['#/mock']     = (el, hash) => examIntro(el, examCode(hash), 'mock');
+SCREENS['#/mock/:id'] = (el, hash) => examIntro(el, examCode(hash), 'mock');
+
+/* — протокол — */
+function buildProtocol(code, sc, day){
+  const p = PROGRAMS.find(x => x.code === code);
+  const iso = day.toISOString().slice(0, 10);
+  const rr = registryReady(STUDENT);
+  const idx = PROGRAMS.indexOf(p);
+  const until = sc.passed
+    ? new Date(Date.UTC(day.getUTCFullYear(), day.getUTCMonth() + p.validMonths,
+                        day.getUTCDate())).toISOString()
+    : null;
+  return {
+    no: '2026-' + (310 + idx) + '-ОТ',
+    date: iso,
+    code: p.code,
+    program: p.title,
+    result: sc.passed ? 'удовлетворительно' : 'неудовлетворительно',
+    commission: STUDENT.records[0].protocol.commission,
+    regNo: rr.ready ? '96-2026-' + (1170455 + idx) : null,
+    validUntil: until,
+    toRegistry: rr.ready,
+    missing: rr.missing
+  };
+}
+
+SCREENS['#/result'] = el => {
+  if (!exam.s) exam.restore();
+  if (!exam.s){
+    el.innerHTML = '<h1>Проверка знаний</h1><section class="card">'
+      + '<p>Попытка не начата. Проверка знаний открывается со страницы программы '
+      + 'или из пункта «Сдать экзамен».</p>'
+      + '<a class="btn btn--fill" href="#/exam">Перейти к проверке знаний</a></section>';
+    return;
+  }
+  const sc = exam.score();
+  const pr = buildProtocol(exam.s.code, sc, today());
+  const rows = pr.commission.map(c =>
+    '<tr><td>' + esc(c.fio) + '</td><td>' + esc(c.post) + '</td></tr>').join('');
+  const gap = pr.toRegistry ? ''
+    : '<div class="gap card"><div class="gap__body"><h3>Запись в реестр не уйдёт</h3>'
+      + '<p>Не заполнено: <b>' + esc(pr.missing.join(', ')) + '</b>. Протокол оформлен, '
+      + 'но без этих данных сведения нельзя передать в реестр обученных лиц — '
+      + 'подтвердить обучение при проверке будет нечем.</p></div>'
+      + '<a class="btn btn--fill" href="#/settings">Заполнить</a></div>';
+
+  el.innerHTML =
+    '<article class="blank" data-testid="protocol">'
+    + '<h1 class="blank__h">Протокол проверки знания требований охраны труда № ' + esc(pr.no) + '</h1>'
+    + '<p class="blank__date">от ' + fmtDate(pr.date) + '</p>'
+    + '<dl class="blank__dl">'
+    + '<dt>Работник</dt><dd>' + esc(STUDENT.fio) + '</dd>'
+    + '<dt>Должность</dt><dd>' + esc(STUDENT.position || 'не заполнено') + '</dd>'
+    + '<dt>Организация</dt><dd>' + esc(STUDENT.org) + '</dd>'
+    + '<dt>Программа</dt><dd>' + esc(pr.code) + '. ' + esc(pr.program) + '</dd>'
+    + '</dl>'
+    + '<p class="verdict verdict--' + (sc.passed ? 'ok' : 'bad') + '">'
+    + 'Результат проверки знаний: <b>' + pr.result + '</b></p>'
+    + '<h2 class="blank__h2">Комиссия по проверке знаний</h2>'
+    + '<table class="blank__tbl"><tbody>' + rows + '</tbody></table>'
+    + '<dl class="blank__dl">'
+    + '<dt>Регистрационный номер в реестре обученных лиц</dt>'
+    + '<dd>' + (pr.regNo ? esc(pr.regNo) : 'не присвоен') + '</dd>'
+    + '<dt>Допуск действует до</dt>'
+    + '<dd>' + (pr.validUntil ? fmtDate(pr.validUntil) : 'не открыт') + '</dd>'
+    + '<dt>Следующая проверка знаний</dt>'
+    + '<dd>' + (pr.validUntil ? fmtDate(pr.validUntil) : 'дата назначается учебным центром') + '</dd>'
+    + '</dl>'
+    + '<p class="blank__srv">Правильных ответов: ' + sc.right + ' из ' + sc.total
+    + ' (' + sc.pct + ' %). Порог, установленный центром: ' + sc.threshold + ' %.</p>'
+    + '</article>'
+    + gap
+    + '<div class="qbtns"><a class="btn" href="#/profile">К моим допускам</a>'
+    + '<a class="btn" href="#/mock">Потренироваться ещё</a></div>';
+};
+</script>
+<script>
+/* Сводка учебного центра. Считается из тех же данных, что и кабинет слушателя:
+   отдельного «админского» источника правды нет. */
+function centerAlerts(){
+  const day = today();
+  const expiring = [];
+  CENTER.students.forEach(s => s.records.forEach(r => {
+    const rec = {code:r.code, protocol:{date:r.date}};
+    const left = daysLeft(rec, day);
+    if (left < 60) expiring.push({student:s, code:r.code, left, until:validUntil(rec)});
+  }));
+  expiring.sort((a, b) => a.left - b.left);
+  const rebuild = PROGRAMS.filter(p => programRebuild(p).length);
+  const onsiteGap = PROGRAMS.filter(p => p.onsiteMin > 0 && onsiteShare(p) < p.onsiteMin);
+  return {expiring, rebuild, onsiteGap};
+}
+
+function alertBlock(id, tone, title, count, note, body){
+  return '<section class="alert alert--' + tone + '" data-testid="alert-' + id + '">'
+    + '<header class="alert__head"><b class="alert__n">' + count + '</b>'
+    + '<div><h2>' + title + '</h2><p class="small muted">' + note + '</p></div></header>'
+    + body + '</section>';
+}
+
+SCREENS['#/center'] = el => {
+  state.role = 'center';
+  const a = centerAlerts();
+
+  const expRows = a.expiring.map(x =>
+    '<tr><td>' + esc(x.student.fio) + '</td><td>' + esc(x.student.org) + '</td>'
+    + '<td>' + esc(x.student.position) + '</td><td>' + x.code + '</td>'
+    + '<td>' + fmtDate(x.until.toISOString()) + '</td>'
+    + '<td class="' + (x.left < 0 ? 'td--bad' : 'td--warn') + '">'
+    + (x.left < 0 ? 'просрочен на ' + Math.abs(x.left) : 'осталось ' + x.left) + ' '
+    + plural(Math.abs(x.left), 'день', 'дня', 'дней') + '</td>'
+    + '<td><button class="btn">Позвать на проверку</button></td></tr>').join('');
+
+  const rebRows = a.rebuild.map(p =>
+    '<li class="hour"><div class="hour__main"><b>' + p.code + '. ' + esc(p.short) + '</b>'
+    + '<span class="hour__norm">На старой редакции: '
+    + programRebuild(p).map(h => esc(h.title)).join('; ') + '</span></div>'
+    + '<div class="hour__meta">' + programRebuild(p).length + ' '
+    + plural(programRebuild(p).length, 'час', 'часа', 'часов') + '</div>'
+    + '<div class="hour__act"><button class="btn">Пересобрать</button></div></li>').join('');
+
+  const gapRows = a.onsiteGap.map(p => {
+    const share = Math.round(onsiteShare(p) * 100);
+    const need = Math.round(p.onsiteMin * 100);
+    return '<li class="hour hour--onsite"><div class="hour__main">'
+      + '<b>' + p.code + '. ' + esc(p.short) + '</b>'
+      + '<span class="hour__norm">Очных часов ' + share + ' % при обязательных '
+      + need + ' %. Выдача документа по программе заблокирована.</span></div>'
+      + '<div class="hour__meta">' + share + ' / ' + need + ' %</div>'
+      + '<div class="hour__act"><button class="btn">Перевести часы в очные</button></div></li>';
+  }).join('');
+
+  el.innerHTML =
+    '<h1>Сводка учебного центра</h1>'
+    + '<p class="muted">Слушателей на обучении: ' + CENTER.students.length
+    + '. Программ в работе: ' + PROGRAMS.length + '.</p>'
+
+    + alertBlock('expiring', 'warn', 'Горит допуск', a.expiring.length,
+        'Меньше 60 дней до конца срока или срок уже истёк. Считается от даты протокола '
+        + 'и периодичности программы.',
+        '<div class="tblwrap"><table class="tbl"><thead><tr>'
+        + '<th>Слушатель</th><th>Организация</th><th>Должность</th><th>Программа</th>'
+        + '<th>Действует до</th><th>Осталось</th><th></th></tr></thead>'
+        + '<tbody>' + expRows + '</tbody></table></div>')
+
+    + alertBlock('rebuild', 'warn', 'Пересобрать до ' + fmtDate(REFORM_DATE), a.rebuild.length,
+        'В программе есть часы, привязанные к устаревшей редакции норматива. '
+        + 'После вступления поправок в силу такие часы придётся объяснять при проверке.',
+        '<ul class="hours">' + rebRows + '</ul>')
+
+    + alertBlock('gap', 'bad', 'Не добран очный минимум', a.onsiteGap.length,
+        'Доля очных часов ниже обязательной. Практика по СИЗ, первая помощь, '
+        + 'тренажёры и полигоны дистанционно не проводятся.',
+        '<ul class="hours">' + gapRows + '</ul>');
+};
+
+/* — выбор роли — */
+function roleScreen(el){
+  el.innerHTML = '<h1>Кто вы?</h1>'
+    + '<div class="cards roles">'
+    + '<button class="card role" data-role="student"><b>Слушатель</b>'
+    + '<span class="muted">Обучение, пробные тесты, проверка знаний, свои допуски и сроки.</span></button>'
+    + '<button class="card role" data-role="center"><b>Учебный центр</b>'
+    + '<span class="muted">Сводка: у кого горит допуск, что пересобрать к 1 сентября, '
+    + 'где не добран очный минимум.</span></button></div>';
+  el.querySelectorAll('[data-role]').forEach(b => b.onclick = () => {
+    state.role = b.dataset.role;
+    try{ localStorage.setItem('dopusk.role', state.role); }catch(e){}
+    location.hash = state.role === 'center' ? '#/center' : '#/profile';
+  });
+}
+SCREENS['#/role'] = roleScreen;
+SCREENS['#/exit'] = roleScreen;
+</script>
+<script>
+const APP = {version:'1.0'};
+Object.assign(window, {APP, NORMS, PROGRAMS, QUESTIONS, STUDENT, CENTER,
+  REFORM_DATE, TODAY, validUntil, daysLeft, isExpiring, isExpired, onsiteShare,
+  needsRebuild, programRebuild, programProgress, registryReady,
+  fmtDate, fmtMoney, fmtHours, plural, norm,
+  MENU, SCREENS, ICONS, icon, esc, state, route, drawMenu,
+  exam, EXAM_KEY, drawExam, examIntro, dopuskState, activeCount, codeFrom,
+  buildProtocol, today, VIDEOS, MATERIALS, watch, player, mmss, frameAt,
+  NEWS, FAQ, CENTER_MENU, centerAlerts, roleScreen});
+
+document.getElementById('roleswitch').onclick = () => { location.hash = '#/role'; };
+route();
+</script>
+</body>
+</html>
